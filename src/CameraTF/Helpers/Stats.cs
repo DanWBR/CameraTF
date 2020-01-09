@@ -1,4 +1,4 @@
-﻿namespace CameraTF.Helpers
+﻿namespace MotoDetector.Helpers
 {
     public static class Stats
     {

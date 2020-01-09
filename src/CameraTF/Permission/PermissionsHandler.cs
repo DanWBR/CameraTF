@@ -8,7 +8,7 @@ using Android.Content;
 using Android.Support.V4.Content;
 using Android.Support.V4.App;
 
-namespace CameraTF
+namespace MotoDetector
 {
     public static class PermissionsHandler
     {
@@ -152,7 +152,7 @@ namespace CameraTF
 
                 if (throwOnError)
                 {
-                    var msg = "CameraTF requires: " + permission + ", but was not found in your AndroidManifest.xml" +
+                    var msg = "MotoDetector requires: " + permission + ", but was not found in your AndroidManifest.xml" +
                         " file.";
                     System.Diagnostics.Debug.WriteLine(msg);
 

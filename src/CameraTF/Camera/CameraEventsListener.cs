@@ -2,7 +2,7 @@
 using Android.Hardware;
 using ApxLabs.FastAndroidCamera;
 
-namespace CameraTF.CameraAccess
+namespace MotoDetector.CameraAccess
 {
     public class CameraEventsListener : Java.Lang.Object, INonMarshalingPreviewCallback
     {

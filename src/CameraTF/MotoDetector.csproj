@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{660D9346-D70B-4C54-8402-E5F6DF48E9AC}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>CameraTF</RootNamespace>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
+    <AndroidApplication>True</AndroidApplication>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <AssemblyName>CameraTF</AssemblyName>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
+    <AndroidSupportedAbis>armeabi-v7a;x86;arm64-v8a;x86_64</AndroidSupportedAbis>
+    <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+    <NoWarn>CS0618</NoWarn>
+    <AndroidDexTool>d8</AndroidDexTool>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
+    <AndroidUseAapt2>true</AndroidUseAapt2>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <ConsolePause>False</ConsolePause>
+    <AndroidUseAapt2>false</AndroidUseAapt2>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="Mono.Android.Export" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AR\TensorflowLiteService.cs" />
+    <Compile Include="Camera\CameraAnalyzer.cs" />
+    <Compile Include="Camera\CameraController.cs" />
+    <Compile Include="Camera\CameraEventsListener.cs" />
+    <Compile Include="Helpers\DrawingHelper.cs" />
+    <Compile Include="Helpers\FPSCounter.cs" />
+    <Compile Include="Helpers\MathHelper.cs" />
+    <Compile Include="Helpers\Stats.cs" />
+    <Compile Include="Helpers\YuvHelper.cs" />
+    <Compile Include="Permission\Permissions.cs" />
+    <Compile Include="Permission\PermissionsHandler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MainActivity.cs" />
+    <Compile Include="CameraSurfaceView.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidNativeLibrary Include="Libs\EmguTF\arm64-v8a\libtfliteextern.so" />
+    <AndroidNativeLibrary Include="Libs\EmguTF\armeabi-v7a\libtfliteextern.so" />
+    <AndroidNativeLibrary Include="Libs\EmguTF\x86\libtfliteextern.so" />
+    <AndroidNativeLibrary Include="Libs\EmguTF\x86_64\libtfliteextern.so" />
+    <AndroidNativeLibrary Include="Libs\YUV\libs\arm64-v8a\libyuv.so" />
+    <AndroidNativeLibrary Include="Libs\YUV\libs\armeabi-v7a\libyuv.so" />
+    <AndroidNativeLibrary Include="Libs\YUV\libs\x86\libyuv.so" />
+    <AndroidNativeLibrary Include="Libs\YUV\libs\x86_64\libyuv.so" />
+    <None Include="Properties\AndroidManifest.xml" />
+    <AndroidAsset Include="Assets\plate_detector.tflite" />
+    <AndroidAsset Include="Assets\plate_labels.txt" />
+    <AndroidAsset Include="Assets\moto_model_detector.tflite" />
+    <AndroidAsset Include="Assets\moto_model_labels.txt" />
+    <AndroidAsset Include="Assets\whatsnew.txt" />
+    <AndroidAsset Include="Assets\pop.m4a" />
+    <AndroidAsset Include="Assets\privacypolicy.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\drawable\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp">
+      <Version>1.68.0</Version>
+    </PackageReference>
+    <PackageReference Include="SkiaSharp.Views">
+      <Version>1.68.0</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Android.Support.Design" Version="28.0.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.Core.Utils" Version="28.0.0.1" />
+    <PackageReference Include="Xamarin.Android.Support.CustomTabs" Version="28.0.0.1" />
+    <PackageReference Include="FastAndroidCamera" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activitylayout.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\mainwindow.axml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\fingerprint_scan.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\gravity.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\detective.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\exercise_filled.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\exposure.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\focal_length_filled.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\help.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\high_priority.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\icon.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\info.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\large_lens.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\licence_plate.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\memory_slot.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\minus.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\motorcycle.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\one.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\plus.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\processor.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\proximity_sensor.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\record.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\recording.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\settings.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\speed_camera.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\splash.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\zero.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\zoom_reset.png">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Emgu.TF.Lite\Emgu.TF.Lite.csproj">
+      <Project>{d7707a6b-d4db-4979-b04c-aa1c179cebe9}</Project>
+      <Name>Emgu.TF.Lite</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\styles.xml" />
+    <AndroidResource Include="Resources\values\colors.xml" />
+  </ItemGroup>
+</Project>

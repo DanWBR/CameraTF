@@ -1,9 +1,9 @@
-﻿using CameraTF.Helpers;
+﻿using MotoDetector.Helpers;
 using Emgu.TF.Lite;
 using System;
 using System.IO;
 
-namespace CameraTF
+namespace MotoDetector
 {
     public unsafe class TensorflowLiteService
     {
@@ -80,20 +80,20 @@ namespace CameraTF
         private void CopyColorsToTensor(IntPtr colors, int colorsCount, IntPtr dest)
         {
             var colorsPtr = (int*)colors;
-            var destPtr = (byte*)dest;
+            var destPtr = (float*)dest;
 
             for (var i = 0; i < colorsCount; ++i)
             {
                 var val = colorsPtr[i];
 
                 //// AA RR GG BB
-                var r = (byte)((val >> 16) & 0xFF);
-                var g = (byte)((val >> 8) & 0xFF);
-                var b = (byte)(val & 0xFF);
+                var fr = ((float)((float)((val >> 16) & 0xFF) / 255.0f));
+                var fg = ((float)((float)((val >> 8) & 0xFF) / 255.0f));
+                var fb = ((float)((float)(val & 0xFF) / 255.0f));
 
-                *(destPtr + (i * 3) + 0) = r;
-                *(destPtr + (i * 3) + 1) = g;
-                *(destPtr + (i * 3) + 2) = b;
+                *(destPtr + (i * 3) + 0) = fr;
+                *(destPtr + (i * 3) + 1) = fg;
+                *(destPtr + (i * 3) + 2) = fb;
             }
         }
     }

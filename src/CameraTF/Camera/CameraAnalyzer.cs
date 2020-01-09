@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Views;
 using ApxLabs.FastAndroidCamera;
-using CameraTF.Helpers;
+using MotoDetector.Helpers;
 using SkiaSharp;
 
-namespace CameraTF.CameraAccess
+namespace MotoDetector.CameraAccess
 {
     public class CameraAnalyzer
     {
-        private const string Model = "hardhat_detect.tflite";
+        private const string Model = "plate_detector.tflite";
 
         private readonly CameraController cameraController;
         private readonly CameraEventsListener cameraEventListener;
@@ -47,8 +47,8 @@ namespace CameraTF.CameraAccess
             InitTensorflowLineService();
 
             var outputInfo = new SKImageInfo(
-                TensorflowLiteService.ModelInputSize, 
-                TensorflowLiteService.ModelInputSize, 
+                TensorflowLiteService.ModelInputSize,
+                TensorflowLiteService.ModelInputSize,
                 SKColorType.Rgba8888);
             inputScaled = new SKBitmap(outputInfo);
             inputScaledRotated = new SKBitmap(outputInfo);
@@ -58,12 +58,14 @@ namespace CameraTF.CameraAccess
 
             stopwatch = new Stopwatch();
 
-            cameraFPSCounter = new FPSCounter((x) => {
+            cameraFPSCounter = new FPSCounter((x) =>
+            {
                 Stats.CameraFps = x.fps;
                 Stats.CameraMs = x.ms;
             });
 
-            processingFPSCounter = new FPSCounter((x) => {
+            processingFPSCounter = new FPSCounter((x) =>
+            {
                 Stats.ProcessingFps = x.fps;
                 Stats.ProcessingMs = x.ms;
             });
@@ -88,11 +90,11 @@ namespace CameraTF.CameraAccess
         private bool CanAnalyzeFrame
         {
             get
-            {				
+            {
                 if (processingTask != null && !processingTask.IsCompleted)
                     return false;
 
-				return true;
+                return true;
             }
         }
 
@@ -106,14 +108,16 @@ namespace CameraTF.CameraAccess
             processingFPSCounter.Report();
 
             processingTask = Task.Run(() =>
-			{
+            {
                 try
-				{
-					DecodeFrame(fastArray);
-				} catch (Exception ex) {
-					Console.WriteLine(ex);
-				}
-			}).ContinueWith(task =>
+                {
+                    DecodeFrame(fastArray);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }).ContinueWith(task =>
             {
                 if (task.IsFaulted)
                     Debug.WriteLine("DecodeFrame exception occurs");

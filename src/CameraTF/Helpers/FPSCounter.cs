@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace CameraTF.Helpers
+namespace MotoDetector.Helpers
 {
     public class FPSCounter
     {

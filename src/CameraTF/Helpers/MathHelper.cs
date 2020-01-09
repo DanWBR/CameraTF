@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CameraTF
+namespace MotoDetector
 {
     public static class MathHelper
     {

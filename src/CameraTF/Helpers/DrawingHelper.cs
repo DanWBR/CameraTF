@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 
-namespace CameraTF.Helpers
+namespace MotoDetector.Helpers
 {
     public static class DrawingHelper
     {

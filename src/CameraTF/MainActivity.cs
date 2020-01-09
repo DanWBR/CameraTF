@@ -6,28 +6,28 @@ using Android.Runtime;
 using Android.Widget;
 using Android.Support.V7.App;
 using SkiaSharp.Views.Android;
-using CameraTF.Helpers;
+using MotoDetector.Helpers;
 using System.IO;
 using System;
 using System.Linq;
 
-namespace CameraTF
+namespace MotoDetector
 {
-    [Activity (
-        MainLauncher = true, 
-        Theme = "@style/AppTheme.NoActionBar", 
+    [Activity(
+        MainLauncher = true,
+        Theme = "@style/AppTheme.NoActionBar",
         ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenLayout)]
     public class MainActivity : AppCompatActivity
     {
         private const float MinScore = 0.6f;
         private const int LabelOffset = 1;
-        private const string LabelsFilename = "hardhat_labels_list.txt";
+        private const string LabelsFilename = "moto_labels.txt";
 
         private string[] labels;
 
         private static SKCanvasView canvasView;
 
-        protected override void OnCreate (Bundle bundle)
+        protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
@@ -45,13 +45,13 @@ namespace CameraTF
             canvasView.PaintSurface += Canvas_PaintSurface;
 
             var mainView = this.FindViewById<FrameLayout>(Resource.Id.frameLayout1);
-            mainView.AddView(cameraSurface);
             mainView.AddView(canvasView);
+            mainView.AddView(cameraSurface);
         }
 
         public static void ReloadCanvas()
         {
-            canvasView.postInvalidate();
+            canvasView.PostInvalidate();
         }
 
         private void LoadModelLabels()
@@ -148,19 +148,19 @@ namespace CameraTF
             }
         }
 
-        protected async override void OnResume ()
+        protected async override void OnResume()
         {
-            base.OnResume ();
+            base.OnResume();
 
             if (PermissionsHandler.NeedsPermissionRequest(this))
                 await PermissionsHandler.RequestPermissionsAsync(this);
         }
 
-        public override void OnRequestPermissionsResult (
-            int requestCode, 
+        public override void OnRequestPermissionsResult(
+            int requestCode,
             string[] permissions,
             [GeneratedEnum] Permission[] grantResults)
-        { 
+        {
             PermissionsHandler.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }

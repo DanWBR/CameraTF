@@ -9,7 +9,7 @@ using Android.Views;
 using ApxLabs.FastAndroidCamera;
 using Camera = Android.Hardware.Camera;
 
-namespace CameraTF.CameraAccess
+namespace MotoDetector.CameraAccess
 {
     public class CameraController
     {

@@ -1,0 +1,8 @@
+﻿v1.0.3
+
+- Melhorada a precisão do detector de posição de motos
+- Adicionados novos modelos de motos: Honda CB 300R, Honda XR 250 Tornado, Honda CFR 230F, Honda XLX 350R, Honda NX 350 Sahara, Yamaha XTZ 125, Yamaha XT 660R
+
+v1.0.2
+
+- Primeira versão pública

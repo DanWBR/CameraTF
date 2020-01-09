@@ -3,9 +3,9 @@ using Android.Content;
 using Android.Runtime;
 using Android.Views;
 using Android.Graphics;
-using CameraTF.CameraAccess;
+using MotoDetector.CameraAccess;
 
-namespace CameraTF
+namespace MotoDetector
 {
     public class CameraSurfaceView : SurfaceView, ISurfaceHolderCallback
     {
