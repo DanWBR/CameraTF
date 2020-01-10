@@ -11,7 +11,8 @@ namespace MotoDetector
     {
         private bool addedHolderCallback = false;
         private bool surfaceCreated;
-        private CameraAnalyzer cameraAnalyzer;
+
+        public CameraAnalyzer cameraAnalyzer;
 
         public CameraSurfaceView(Context context)
             : base(context)
@@ -101,14 +102,15 @@ namespace MotoDetector
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
-            //var width = ResolveSize(SuggestedMinimumWidth, widthMeasureSpec);
-            //var height = ResolveSize(SuggestedMinimumHeight, heightMeasureSpec);
-            //var displayheight = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Height;
-            //var displaywidth = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Width;
-            //var dratio = displayheight / displaywidth;
-            //var cratio = (float)height / (float)width;
-            //SetMeasuredDimension((int)((double)width * dratio / cratio), height);
-            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
+            var width = ResolveSize(SuggestedMinimumWidth, widthMeasureSpec);
+            var height = ResolveSize(SuggestedMinimumHeight, heightMeasureSpec);
+            var displayheight = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Height;
+            var displaywidth = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Width;
+            var dratio = displayheight / displaywidth;
+            var cratio = (float)height / (float)width;
+            MainActivity.ctodratio = cratio;
+            SetMeasuredDimension((int)((double)width * dratio / cratio), height);
+            //base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
         }
 
     }

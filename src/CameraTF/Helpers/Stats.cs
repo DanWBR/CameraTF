@@ -1,22 +1,27 @@
 ﻿namespace MotoDetector.Helpers
 {
-    public static class Stats
+    public class Stats
     {
-        public static float CameraFps { get; set; }
-        public static float CameraMs { get; set; }
+        public int type = 0;
 
-        public static float ProcessingFps { get; set; }
-        public static float ProcessingMs { get; set; }
+        public float CameraFps { get; set; }
+        public float CameraMs { get; set; }
 
-        public static long YUV2RGBElapsedMs { get; set; }
+        public float ProcessingFps { get; set; }
+        public float ProcessingMs { get; set; }
 
-        public static long ResizeAndRotateElapsedMs { get; set; }
+        public long YUV2RGBElapsedMs { get; set; }
 
-        public static long InterpreterElapsedMs { get; set; }
-        public static int NumDetections { get; set; }
+        public long ResizeAndRotateElapsedMs { get; set; }
 
-        public static float[] Labels { get; set; }
-        public static float[] Scores { get; set; }
-        public static float[] BoundingBoxes { get; set; }
+        public long InterpreterElapsedMs { get; set; }
+        public int NumDetections { get; set; }
+
+        public float[] Labels { get; set; }
+        public float[] Scores { get; set; }
+        public float[] BoundingBoxes { get; set; }
+
+        public float[] Scores2 { get; set; }
     }
+
 }

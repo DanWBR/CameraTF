@@ -15,7 +15,7 @@ namespace MotoDetector.CameraAccess
     {
         private readonly Context context;
         private readonly ISurfaceHolder holder;
-        private readonly SurfaceView surfaceView;
+        private readonly CameraSurfaceView surfaceView;
         private readonly CameraEventsListener cameraEventListener;
 
         private int cameraId;
@@ -27,7 +27,7 @@ namespace MotoDetector.CameraAccess
 
         public int LastCameraDisplayHeight { get; private set; }
 
-        public CameraController(SurfaceView surfaceView, CameraEventsListener cameraEventListener)
+        public CameraController(CameraSurfaceView surfaceView, CameraEventsListener cameraEventListener)
         {
             this.context = surfaceView.Context;
             this.holder = surfaceView.Holder;
@@ -148,7 +148,7 @@ namespace MotoDetector.CameraAccess
                             camera = Camera.Open(i);
                             cameraId = i;
                             found = true;
-                            break;
+                            //break;
                         }
                     }
 
@@ -214,7 +214,7 @@ namespace MotoDetector.CameraAccess
             {
                 foreach (var sps in supportedPreviewSizes)
                 {
-                    if (sps.Width >= 640 && sps.Width <= 3000 && sps.Height >= 360 && sps.Height <= 4000)
+                    if (sps.Width >= 640 && sps.Width <= 1000 && sps.Height >= 320 && sps.Height <= 1000)
                     {
                         LastCameraDisplayWidth = sps.Width;
                         LastCameraDisplayHeight = sps.Height;

@@ -7,7 +7,10 @@ namespace MotoDetector
 {
     public unsafe class TensorflowLiteService
     {
-        public const int ModelInputSize = 300;
+        public const int ModelInputSize_PlateAndMoto = 300;
+        public const int ModelInputSize_MotoModel = 224;
+
+        public int ModelType = 0;
 
         private FlatBufferModel model;
         private Interpreter interpreter;
@@ -64,20 +67,35 @@ namespace MotoDetector
 
             interpreter.Invoke();
 
-            var detectionBoxes = (float[])outputTensors[0].GetData();
-            var detectionClasses = (float[])outputTensors[1].GetData();
-            var detectionScores = (float[])outputTensors[2].GetData();
-            var detectionNumDetections = (float[])outputTensors[3].GetData();
+            if (ModelType == 0)
+            {
+                //object detector
 
-            var numDetections = (int)detectionNumDetections[0];
+                var detectionBoxes = (float[])outputTensors[0].GetData();
+                var detectionClasses = (float[])outputTensors[1].GetData();
+                var detectionScores = (float[])outputTensors[2].GetData();
+                var detectionNumDetections = (float[])outputTensors[3].GetData();
 
-            Stats.NumDetections = numDetections;
-            Stats.Labels = detectionClasses;
-            Stats.Scores = detectionScores;
-            Stats.BoundingBoxes = detectionBoxes;
+                var numDetections = (int)detectionNumDetections[0];
+
+                MainActivity.PlateAndMotoStats.NumDetections = numDetections;
+                MainActivity.PlateAndMotoStats.Labels = detectionClasses;
+                MainActivity.PlateAndMotoStats.Scores = detectionScores;
+                MainActivity.PlateAndMotoStats.BoundingBoxes = detectionBoxes;
+            }
+            else
+            {
+                // image labeling
+
+                var detectionScores = (float[])outputTensors[0].GetData();
+
+                MainActivity.MotoModelStats.Scores2 = detectionScores;
+
+            }
+
         }
 
-        private void CopyColorsToTensor(IntPtr colors, int colorsCount, IntPtr dest)
+        private static void CopyColorsToTensor(IntPtr colors, int colorsCount, IntPtr dest)
         {
             var colorsPtr = (int*)colors;
             var destPtr = (float*)dest;

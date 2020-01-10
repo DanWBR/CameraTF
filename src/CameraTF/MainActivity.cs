@@ -10,7 +10,12 @@ using MotoDetector.Helpers;
 using System.IO;
 using System;
 using System.Linq;
-using CameraTF;
+using System.Collections.Generic;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using MotoDetector.Classes;
+using SkiaSharp;
 
 namespace MotoDetector
 {
@@ -20,17 +25,34 @@ namespace MotoDetector
         ConfigurationChanges = ConfigChanges.KeyboardHidden | ConfigChanges.ScreenLayout)]
     public class MainActivity : AppCompatActivity
     {
-        private const float MinScore = 0.6f;
-        private const int LabelOffset = 1;
-        private const string LabelsFilename = "plate_labels.txt";
 
-        private string[] labels;
+        public static Activity context;
+
+        private string[] labels_plate = { "???", "plate" };
+        private string[] labels_moto = { "???", "moto" };
+
+        public static Stats PlateAndMotoStats = new Stats();
+        public static Stats MotoModelStats = new Stats();
+
+        public static float ctodratio = 1.0f;
 
         private static SKCanvasView canvasView;
+
+        private static CameraSurfaceView cameraSurface;
+
+        public static Dictionary<string, Moto> MotosList;
+
+        public static List<string> MotoLabels;
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+
+            MotosList = Motos.Get();
+
+            LoadModelLabels();
+
+            AppCenter.Start("6ef03cf3-90e1-4478-a070-4446c0e3e78c", typeof(Analytics), typeof(Crashes));
 
             this.RequestWindowFeature(WindowFeatures.NoTitle);
 
@@ -39,9 +61,7 @@ namespace MotoDetector
 
             SetContentView(Resource.Layout.mainwindow);
 
-            LoadModelLabels();
-
-            var cameraSurface = new CameraSurfaceView(this);
+            cameraSurface = new CameraSurfaceView(this);
             canvasView = new SKCanvasView(this);
             canvasView.PaintSurface += Canvas_PaintSurface;
 
@@ -50,29 +70,31 @@ namespace MotoDetector
             mainView.AddView(cameraSurface);
 
             var mainLayout = this.FindViewById<LinearLayout>(Resource.Id.linearLayoutMain);
-            canvasView.BringToFront();
             mainLayout.BringToFront();
+            canvasView.BringToFront();
 
+            context = this;
+
+        }
+
+        private void LoadModelLabels()
+        {
+            using (var labelData = Application.Context.Assets.Open("moto_model_detector.txt"))
+            {
+                using (var reader = new StreamReader(labelData))
+                {
+                    var text = reader.ReadToEnd();
+                    MotoLabels = text
+                        .Split(new[] { System.Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToList();
+                }
+            }
         }
 
         public static void ReloadCanvas()
         {
             canvasView.PostInvalidate();
-        }
-
-        private void LoadModelLabels()
-        {
-            using (var labelData = Application.Context.Assets.Open(LabelsFilename))
-            {
-                using (var reader = new StreamReader(labelData))
-                {
-                    var text = reader.ReadToEnd();
-                    labels = text
-                        .Split(new[] { System.Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToArray();
-                }
-            }
         }
 
         private void Canvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
@@ -82,12 +104,24 @@ namespace MotoDetector
             var canvasWidth = e.Info.Width;
             var canvasHeight = e.Info.Height;
 
+            var cratio = (float)cameraSurface.cameraAnalyzer.cameraController.LastCameraDisplayHeight / (float)cameraSurface.cameraAnalyzer.cameraController.LastCameraDisplayWidth;
+            var pratio = cratio / ctodratio;
+
             canvas.Clear();
+
+            var stats = PlateAndMotoStats;
+            var labels = labels_moto;
 
             var leftMargin = 5;
             var bottomMargin = 5;
 
             var recHeight = 250;
+
+            if (cameraSurface.cameraAnalyzer.inputRotatedCropped != null)
+            {
+                canvas.DrawBitmap(cameraSurface.cameraAnalyzer.inputRotatedCropped, 0, 300);
+            }
+
             DrawingHelper.DrawBackgroundRectangle(
                 canvas,
                 canvasWidth,
@@ -99,59 +133,73 @@ namespace MotoDetector
                 canvas,
                 leftMargin,
                 canvasHeight - 0 - bottomMargin,
-                $"Camera: {Stats.CameraFps} fps ({Stats.CameraMs} ms)");
+                $"Camera: {stats.CameraFps} fps ({stats.CameraMs} ms)");
 
             DrawingHelper.DrawText(
                 canvas,
                 leftMargin,
                 canvasHeight - 50 - bottomMargin,
-                $"Processing: {Stats.ProcessingFps} fps ({Stats.ProcessingMs} ms)");
+                $"Processing: {stats.ProcessingFps} fps ({stats.ProcessingMs} ms)");
 
             DrawingHelper.DrawText(
                 canvas,
                 leftMargin,
                 canvasHeight - 100 - bottomMargin,
-                $"YUV2RGB: {Stats.YUV2RGBElapsedMs} ms");
+                $"YUV2RGB: {stats.YUV2RGBElapsedMs} ms");
 
             DrawingHelper.DrawText(
                 canvas,
                 leftMargin,
                 canvasHeight - 150 - bottomMargin,
-                $"ResizeAndRotate: {Stats.ResizeAndRotateElapsedMs} ms");
+                $"ResizeAndRotate: {stats.ResizeAndRotateElapsedMs} ms");
 
             DrawingHelper.DrawText(
                 canvas,
                 leftMargin,
                 canvasHeight - 200 - bottomMargin,
-                $"TFRecognize: {Stats.InterpreterElapsedMs} ms");
+                $"TFRecognize: {stats.InterpreterElapsedMs} ms");
 
-            for (var i = 0; i < Stats.NumDetections; i++)
+            if (stats.Scores2 == null)
             {
-                var score = Stats.Scores[i];
-                var labelIndex = (int)Stats.Labels[i];
-                var xmin = Stats.BoundingBoxes[i * 4 + 0];
-                var ymin = Stats.BoundingBoxes[i * 4 + 1];
-                var xmax = Stats.BoundingBoxes[i * 4 + 2];
-                var ymax = Stats.BoundingBoxes[i * 4 + 3];
+                for (var i = 0; i < stats.NumDetections; i++)
+                {
+                    var score = stats.Scores[i];
+                    var labelIndex = (int)stats.Labels[i];
+                    var xmin = stats.BoundingBoxes[i * 4 + 0];
+                    var ymin = stats.BoundingBoxes[i * 4 + 1];
+                    var xmax = stats.BoundingBoxes[i * 4 + 2];
+                    var ymax = stats.BoundingBoxes[i * 4 + 3];
 
-                if (!labelIndex.Between(0, labels.Length - 1)) continue;
-                if (score < MinScore) continue;
+                    //if (labelIndex == 0) continue;
+                    if (score < 0.5) continue;
 
-                var left = ymin * canvasWidth;
-                var top = xmin * canvasHeight;
-                var right = ymax * canvasWidth;
-                var bottom = xmax * canvasHeight;
+                    var left = ymin * canvasWidth;
+                    var top = (canvasHeight - canvasWidth) / 2 + xmin * canvasWidth;
+                    var right = ymax * canvasWidth;
+                    var bottom = (canvasHeight - canvasWidth) / 2 + xmax * canvasWidth;
 
-                DrawingHelper.DrawBoundingBox(
-                    canvas,
-                    left,
-                    top,
-                    right,
-                    bottom);
+                    left *= pratio;
+                    top *= pratio;
+                    right *= pratio;
+                    bottom *= pratio;
 
-                var label = labels[labelIndex + LabelOffset];
-                DrawingHelper.DrawText(canvas, left, bottom, $"{label} - {score}");
+                    DrawingHelper.DrawBoundingBox(
+                        canvas,
+                        left,
+                        top,
+                        right,
+                        bottom);
+
+                    var label = labels[1];
+                    DrawingHelper.DrawText(canvas, left, bottom, $"{label} - {score}");
+                }
             }
+            else
+            {
+                DrawingHelper.DrawText2(canvas, 20, 340, MotoLabels[stats.Scores2.ToList().IndexOf(stats.Scores2.Max())]);
+            }
+
+
         }
 
         protected async override void OnResume()

@@ -20,6 +20,14 @@ namespace MotoDetector.Helpers
             TextSize = 40,
         };
 
+        private static readonly SKPaint textPaint2 = new SKPaint
+        {
+            Color = SKColors.White,
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill,
+            TextSize = 40,
+        };
+
         private static readonly SKPaint backgroundPaint = new SKPaint
         {
             Color = new SKColor(0xFF, 0xFF, 0xFF, 0x50),
@@ -37,9 +45,14 @@ namespace MotoDetector.Helpers
             canvas.DrawText(text, x, y, textPaint);
         }
 
+        public static void DrawText2(SKCanvas canvas, float x, float y, string text)
+        {
+            canvas.DrawText(text, x, y, textPaint2);
+        }
+
         public static void DrawBackgroundRectangle(SKCanvas canvas, float width, float height, float x, float y)
         {
-            canvas.DrawRect(x,  y, width, height, backgroundPaint);
+            canvas.DrawRect(x, y, width, height, backgroundPaint);
         }
     }
 }

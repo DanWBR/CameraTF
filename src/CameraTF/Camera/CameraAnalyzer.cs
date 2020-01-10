@@ -13,9 +13,11 @@ namespace MotoDetector.CameraAccess
 {
     public class CameraAnalyzer
     {
-        private const string Model = "plate_detector.tflite";
+        private const string ModelPlate = "plate_detector.tflite";
+        private const string ModelMoto = "moto_detector.tflite";
+        private const string ModelMotoModel = "moto_model_detector.tflite";
 
-        private readonly CameraController cameraController;
+        public readonly CameraController cameraController;
         private readonly CameraEventsListener cameraEventListener;
         private Task processingTask;
 
@@ -23,23 +25,34 @@ namespace MotoDetector.CameraAccess
         private int height;
         private int cDegrees;
 
-        private SKBitmap input;
-        private IntPtr colors;
-        private int colorCount;
-        private SKBitmap inputScaled;
-        private SKBitmap inputScaledRotated;
+        public SKBitmap input, inputRotated, inputRotatedCropped;
+
+        private IntPtr colors_PlateAndMoto;
+        private int colorCount_PlateAndMoto;
+
+        private IntPtr colors_MotoModel;
+        private int colorCount_MotoModel;
+
+        public SKBitmap inputScaled_PlateAndMoto;
+
+        public SKBitmap inputScaled_MotoModel;
+
         private int[] imageData;
         private GCHandle imageGCHandle;
         private IntPtr imageIntPtr;
 
-        private TensorflowLiteService tfService;
+        private TensorflowLiteService tfService_Plate;
+        private TensorflowLiteService tfService_Moto;
+        private TensorflowLiteService tfService_MotoModel;
 
         private readonly FPSCounter cameraFPSCounter;
         private readonly FPSCounter processingFPSCounter;
 
         private readonly Stopwatch stopwatch;
 
-        public CameraAnalyzer(SurfaceView surfaceView)
+        private bool canAnalyze = true;
+
+        public CameraAnalyzer(CameraSurfaceView surfaceView)
         {
             cameraEventListener = new CameraEventsListener();
             cameraController = new CameraController(surfaceView, cameraEventListener);
@@ -47,28 +60,43 @@ namespace MotoDetector.CameraAccess
             InitTensorflowLineService();
 
             var outputInfo = new SKImageInfo(
-                TensorflowLiteService.ModelInputSize,
-                TensorflowLiteService.ModelInputSize,
+                TensorflowLiteService.ModelInputSize_PlateAndMoto,
+                TensorflowLiteService.ModelInputSize_PlateAndMoto,
                 SKColorType.Rgba8888);
-            inputScaled = new SKBitmap(outputInfo);
-            inputScaledRotated = new SKBitmap(outputInfo);
 
-            colors = inputScaledRotated.GetPixels();
-            colorCount = TensorflowLiteService.ModelInputSize * TensorflowLiteService.ModelInputSize;
+            inputScaled_PlateAndMoto = new SKBitmap(outputInfo);
+
+            colors_PlateAndMoto = inputScaled_PlateAndMoto.GetPixels();
+            colorCount_PlateAndMoto = TensorflowLiteService.ModelInputSize_PlateAndMoto * TensorflowLiteService.ModelInputSize_PlateAndMoto;
+
+            var outputInfo2 = new SKImageInfo(
+                TensorflowLiteService.ModelInputSize_MotoModel,
+                TensorflowLiteService.ModelInputSize_MotoModel,
+                SKColorType.Rgba8888);
+
+            inputScaled_MotoModel = new SKBitmap(outputInfo2);
+
+            colors_MotoModel = inputScaled_MotoModel.GetPixels();
+            colorCount_MotoModel = TensorflowLiteService.ModelInputSize_MotoModel * TensorflowLiteService.ModelInputSize_MotoModel;
 
             stopwatch = new Stopwatch();
 
             cameraFPSCounter = new FPSCounter((x) =>
             {
-                Stats.CameraFps = x.fps;
-                Stats.CameraMs = x.ms;
+                MainActivity.PlateAndMotoStats.CameraFps = x.fps;
+                MainActivity.PlateAndMotoStats.CameraMs = x.ms;
+                MainActivity.MotoModelStats.CameraFps = x.fps;
+                MainActivity.MotoModelStats.CameraMs = x.ms;
             });
 
             processingFPSCounter = new FPSCounter((x) =>
             {
-                Stats.ProcessingFps = x.fps;
-                Stats.ProcessingMs = x.ms;
+                MainActivity.PlateAndMotoStats.ProcessingFps = x.fps;
+                MainActivity.PlateAndMotoStats.ProcessingMs = x.ms;
+                MainActivity.MotoModelStats.ProcessingFps = x.fps;
+                MainActivity.MotoModelStats.ProcessingMs = x.ms;
             });
+
         }
 
         public void SetupCamera()
@@ -136,50 +164,117 @@ namespace MotoDetector.CameraAccess
                 imageGCHandle = GCHandle.Alloc(imageData, GCHandleType.Pinned);
                 imageIntPtr = imageGCHandle.AddrOfPinnedObject();
 
-                input = new SKBitmap(new SKImageInfo(width, height, SKColorType.Rgba8888));
+                input = new SKBitmap(new SKImageInfo(width, height, SKColorType.Bgra8888));
                 input.InstallPixels(input.Info, imageIntPtr);
             }
 
-            var pY = fastArray.Raw;
-            var pUV = pY + width * height;
+            if (inputRotated == null)
+            {
+                inputRotated = new SKBitmap(new SKImageInfo(height, width, SKColorType.Bgra8888));
+            }
 
-            stopwatch.Restart();
-            YuvHelper.ConvertYUV420SPToARGB8888(pY, pUV, (int*)imageIntPtr, width, height);
-            stopwatch.Stop();
-            Stats.YUV2RGBElapsedMs = stopwatch.ElapsedMilliseconds;
+            if (inputRotatedCropped == null)
+            {
+                inputRotatedCropped = new SKBitmap(new SKImageInfo(height, height, SKColorType.Bgra8888));
+            }
 
-            stopwatch.Restart();
-            input.ScalePixels(inputScaled, SKFilterQuality.None);
-            RotateBitmap(inputScaled, cDegrees);
-            stopwatch.Stop();
-            Stats.ResizeAndRotateElapsedMs = stopwatch.ElapsedMilliseconds;
+            RotateInputBitmap(input, cDegrees);
+            CropInputBitmap(inputRotated);
 
-            stopwatch.Restart();
-            tfService.Recognize(colors, colorCount);
-            stopwatch.Stop();
-            Stats.InterpreterElapsedMs = stopwatch.ElapsedMilliseconds;
+            if (canAnalyze)
+            {
+                _ = Task.Factory.StartNew(() =>
+                {
 
-            MainActivity.ReloadCanvas();
+                    canAnalyze = false;
+
+                    var pY = fastArray.Raw;
+                    var pUV = pY + width * height;
+
+                    stopwatch.Restart();
+
+                    YuvHelper.ConvertYUV420SPToARGB8888(pY, pUV, (int*)imageIntPtr, width, height);
+
+                    stopwatch.Stop();
+
+                    MainActivity.PlateAndMotoStats.YUV2RGBElapsedMs = stopwatch.ElapsedMilliseconds;
+
+                    stopwatch.Restart();
+
+                    inputRotatedCropped.ScalePixels(inputScaled_PlateAndMoto, SKFilterQuality.None);
+                    inputRotatedCropped.ScalePixels(inputScaled_MotoModel, SKFilterQuality.None);
+
+                    stopwatch.Stop();
+
+                    MainActivity.PlateAndMotoStats.ResizeAndRotateElapsedMs = stopwatch.ElapsedMilliseconds;
+
+                    stopwatch.Restart();
+
+                    tfService_Plate?.Recognize(colors_PlateAndMoto, colorCount_PlateAndMoto);
+                    tfService_Moto?.Recognize(colors_PlateAndMoto, colorCount_PlateAndMoto);
+
+                    stopwatch.Stop();
+
+                    MainActivity.PlateAndMotoStats.InterpreterElapsedMs = stopwatch.ElapsedMilliseconds;
+
+                    stopwatch.Restart();
+
+                    tfService_MotoModel?.Recognize(colors_MotoModel, colorCount_MotoModel);
+
+                    stopwatch.Stop();
+
+                    MainActivity.MotoModelStats.InterpreterElapsedMs = stopwatch.ElapsedMilliseconds;
+
+                    canAnalyze = true;
+
+                    MainActivity.context.RunOnUiThread(() =>
+                    {
+                        MainActivity.ReloadCanvas();
+                    });
+
+                });
+            }
+
         }
 
-        private void RotateBitmap(SKBitmap bitmap, int degrees)
+        private void CropInputBitmap(SKBitmap bitmap)
         {
-            using (var surface = new SKCanvas(inputScaledRotated))
+            using (var surface = new SKCanvas(inputRotatedCropped))
             {
-                surface.Translate(inputScaledRotated.Width / 2, inputScaledRotated.Height / 2);
+                var w = input.Width;
+                var h = input.Height;
+                surface.DrawBitmap(bitmap, new SKRect(0, (h - w) / 2, w, (h - w) / 2 + w), new SKRect(0, 0, w, w));
+            }
+        }
+
+        private void RotateInputBitmap(SKBitmap bitmap, int degrees)
+        {
+            using (var surface = new SKCanvas(inputRotated))
+            {
+                surface.Translate(input.Width / 2, input.Height / 2);
                 surface.RotateDegrees(degrees);
-                surface.Translate(-inputScaledRotated.Width / 2, -inputScaledRotated.Height / 2);
+                surface.Translate(-input.Width / 2, -input.Height / 2);
                 surface.DrawBitmap(bitmap, 0, 0);
             }
         }
 
         private void InitTensorflowLineService()
         {
-            using (var modelData = Application.Context.Assets.Open(Model))
+            using (var modelData = Application.Context.Assets.Open(ModelPlate))
             {
-                tfService = new TensorflowLiteService();
-                tfService.Initialize(modelData, useNumThreads: true);
+                tfService_Plate = new TensorflowLiteService();
+                tfService_Plate.Initialize(modelData, useNumThreads: true);
             }
+            //using (var modelData = Application.Context.Assets.Open(ModelMoto))
+            //{
+            //    tfService_Moto = new TensorflowLiteService();
+            //    tfService_Moto.Initialize(modelData, useNumThreads: true);
+            //}
+            //using (var modelData = Application.Context.Assets.Open(ModelMotoModel))
+            //{
+            //    tfService_MotoModel = new TensorflowLiteService { ModelType = 1 };
+            //    tfService_MotoModel.Initialize(modelData, useNumThreads: true);
+            //}
         }
     }
 }

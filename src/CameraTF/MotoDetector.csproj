@@ -6,7 +6,7 @@
     <ProjectGuid>{660D9346-D70B-4C54-8402-E5F6DF48E9AC}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>CameraTF</RootNamespace>
+    <RootNamespace>MotoDetector</RootNamespace>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidResgenClass>Resource</AndroidResgenClass>
@@ -66,6 +66,11 @@
     <Compile Include="MainActivity.cs" />
     <Compile Include="CameraSurfaceView.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Classes\Sinesp.cs" />
+    <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Classes\Motos.cs" />
+    <Compile Include="Classes\Features.cs" />
+    <Compile Include="Classes\ColorConversion.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidNativeLibrary Include="Libs\EmguTF\arm64-v8a\libtfliteextern.so" />
@@ -78,17 +83,17 @@
     <AndroidNativeLibrary Include="Libs\YUV\libs\x86_64\libyuv.so" />
     <None Include="Properties\AndroidManifest.xml" />
     <AndroidAsset Include="Assets\plate_detector.tflite" />
-    <AndroidAsset Include="Assets\plate_labels.txt" />
     <AndroidAsset Include="Assets\moto_model_detector.tflite" />
-    <AndroidAsset Include="Assets\moto_model_labels.txt" />
     <AndroidAsset Include="Assets\whatsnew.txt" />
     <AndroidAsset Include="Assets\pop.m4a" />
     <AndroidAsset Include="Assets\privacypolicy.txt" />
     <AndroidAsset Include="Assets\moto_detector.tflite" />
-    <AndroidAsset Include="Assets\moto_labels.txt" />
+    <AndroidAsset Include="Assets\moto_model_detector.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
+    <Folder Include="Data\" />
+    <Folder Include="Classes\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <ItemGroup>
@@ -107,6 +112,21 @@
     </PackageReference>
     <PackageReference Include="Xamarin.Essentials">
       <Version>1.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="FileHelpers">
+      <Version>3.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AppCenter">
+      <Version>2.6.4</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AppCenter.Crashes">
+      <Version>2.6.4</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AppCenter.Analytics">
+      <Version>2.6.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -231,5 +251,9 @@
   <ItemGroup>
     <AndroidResource Include="Resources\values\styles.xml" />
     <AndroidResource Include="Resources\values\colors.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\features.csv" />
+    <EmbeddedResource Include="Data\motos.csv" />
   </ItemGroup>
 </Project>
