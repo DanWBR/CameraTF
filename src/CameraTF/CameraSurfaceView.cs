@@ -27,14 +27,15 @@ namespace MotoDetector
 
         private void Init()
         {
-			if (cameraAnalyzer == null)
-	            cameraAnalyzer = new CameraAnalyzer(this);
+            if (cameraAnalyzer == null)
+                cameraAnalyzer = new CameraAnalyzer(this);
 
-			if (!addedHolderCallback) {
-				Holder.AddCallback(this);
-				Holder.SetType(SurfaceType.PushBuffers);
-				addedHolderCallback = true;
-			}
+            if (!addedHolderCallback)
+            {
+                Holder.AddCallback(this);
+                Holder.SetType(SurfaceType.PushBuffers);
+                addedHolderCallback = true;
+            }
         }
 
         public async void SurfaceCreated(ISurfaceHolder holder)
@@ -70,19 +71,19 @@ namespace MotoDetector
             cameraAnalyzer.ShutdownCamera();
         }
 
-		protected override void OnAttachedToWindow()
-		{
-			base.OnAttachedToWindow();
+        protected override void OnAttachedToWindow()
+        {
+            base.OnAttachedToWindow();
 
-			Init();
-		}
+            Init();
+        }
 
-		protected override void OnWindowVisibilityChanged(ViewStates visibility)
-		{
-			base.OnWindowVisibilityChanged(visibility);
-			if (visibility == ViewStates.Visible)
-				Init();
-		}
+        protected override void OnWindowVisibilityChanged(ViewStates visibility)
+        {
+            base.OnWindowVisibilityChanged(visibility);
+            if (visibility == ViewStates.Visible)
+                Init();
+        }
 
         public override async void OnWindowFocusChanged(bool hasWindowFocus)
         {
@@ -97,5 +98,18 @@ namespace MotoDetector
                 cameraAnalyzer.RefreshCamera();
             }
         }
+
+        protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
+        {
+            //var width = ResolveSize(SuggestedMinimumWidth, widthMeasureSpec);
+            //var height = ResolveSize(SuggestedMinimumHeight, heightMeasureSpec);
+            //var displayheight = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Height;
+            //var displaywidth = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Width;
+            //var dratio = displayheight / displaywidth;
+            //var cratio = (float)height / (float)width;
+            //SetMeasuredDimension((int)((double)width * dratio / cratio), height);
+            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+
     }
 }

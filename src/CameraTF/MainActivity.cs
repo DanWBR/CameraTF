@@ -10,18 +10,19 @@ using MotoDetector.Helpers;
 using System.IO;
 using System;
 using System.Linq;
+using CameraTF;
 
 namespace MotoDetector
 {
     [Activity(
         MainLauncher = true,
         Theme = "@style/AppTheme.NoActionBar",
-        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenLayout)]
+        ConfigurationChanges = ConfigChanges.KeyboardHidden | ConfigChanges.ScreenLayout)]
     public class MainActivity : AppCompatActivity
     {
         private const float MinScore = 0.6f;
         private const int LabelOffset = 1;
-        private const string LabelsFilename = "moto_labels.txt";
+        private const string LabelsFilename = "plate_labels.txt";
 
         private string[] labels;
 
@@ -36,7 +37,7 @@ namespace MotoDetector
             this.Window.AddFlags(WindowManagerFlags.Fullscreen);
             this.Window.AddFlags(WindowManagerFlags.KeepScreenOn);
 
-            SetContentView(Resource.Layout.activitylayout);
+            SetContentView(Resource.Layout.mainwindow);
 
             LoadModelLabels();
 
@@ -44,9 +45,14 @@ namespace MotoDetector
             canvasView = new SKCanvasView(this);
             canvasView.PaintSurface += Canvas_PaintSurface;
 
-            var mainView = this.FindViewById<FrameLayout>(Resource.Id.frameLayout1);
+            var mainView = this.FindViewById<FrameLayout>(Resource.Id.frameLayoutMain);
             mainView.AddView(canvasView);
             mainView.AddView(cameraSurface);
+
+            var mainLayout = this.FindViewById<LinearLayout>(Resource.Id.linearLayoutMain);
+            canvasView.BringToFront();
+            mainLayout.BringToFront();
+
         }
 
         public static void ReloadCanvas()

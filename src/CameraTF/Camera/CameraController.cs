@@ -95,20 +95,20 @@ namespace MotoDetector.CameraAccess
             try
             {
                 camera.SetPreviewDisplay(holder);
-                
+
                 var previewParameters = camera.GetParameters();
                 var previewSize = previewParameters.PreviewSize;
                 var bitsPerPixel = ImageFormat.GetBitsPerPixel(previewParameters.PreviewFormat);
 
                 int bufferSize = (previewSize.Width * previewSize.Height * bitsPerPixel) / 8;
-				const int NUM_PREVIEW_BUFFERS = 5;
-				for (uint i = 0; i < NUM_PREVIEW_BUFFERS; ++i)
-				{
-					using (var buffer = new FastJavaByteArray(bufferSize))
-						camera.AddCallbackBuffer(buffer);
-				}
+                const int NUM_PREVIEW_BUFFERS = 5;
+                for (uint i = 0; i < NUM_PREVIEW_BUFFERS; ++i)
+                {
+                    using (var buffer = new FastJavaByteArray(bufferSize))
+                        camera.AddCallbackBuffer(buffer);
+                }
 
-				camera.StartPreview();
+                camera.StartPreview();
 
                 camera.SetNonMarshalingPreviewCallback(cameraEventListener);
             }
@@ -144,8 +144,7 @@ namespace MotoDetector.CameraAccess
                         Camera.GetCameraInfo(i, camInfo);
                         if (camInfo.Facing == whichCamera)
                         {
-                            System.Diagnostics.Debug.WriteLine(
-                                "Found " + whichCamera + " Camera, opening...");
+                            System.Diagnostics.Debug.WriteLine("Found " + whichCamera + " Camera, opening...");
                             camera = Camera.Open(i);
                             cameraId = i;
                             found = true;
@@ -155,8 +154,7 @@ namespace MotoDetector.CameraAccess
 
                     if (!found)
                     {
-                        System.Diagnostics.Debug.WriteLine(
-                            "Finding " + whichCamera + " camera failed, opening camera 0...");
+                        System.Diagnostics.Debug.WriteLine("Finding " + whichCamera + " camera failed, opening camera 0...");
                         camera = Camera.Open(0);
                         cameraId = 0;
                     }
@@ -216,11 +214,10 @@ namespace MotoDetector.CameraAccess
             {
                 foreach (var sps in supportedPreviewSizes)
                 {
-                    if (sps.Width >= 640 && sps.Width <= 1000 && sps.Height >= 360 && sps.Height <= 1000)
+                    if (sps.Width >= 640 && sps.Width <= 3000 && sps.Height >= 360 && sps.Height <= 4000)
                     {
                         LastCameraDisplayWidth = sps.Width;
                         LastCameraDisplayHeight = sps.Height;
-
                         break;
                     }
                 }
@@ -228,6 +225,7 @@ namespace MotoDetector.CameraAccess
 
             System.Diagnostics.Debug.WriteLine(
                 "Selected Resolution: " + LastCameraDisplayWidth + "x" + LastCameraDisplayHeight);
+            parameters.SetPreviewSize(LastCameraDisplayWidth, LastCameraDisplayHeight);
             parameters.SetPreviewSize(LastCameraDisplayWidth, LastCameraDisplayHeight);
 
             camera.SetParameters(parameters);
@@ -283,13 +281,13 @@ namespace MotoDetector.CameraAccess
             int correctedDegrees;
             if (info.Facing == CameraFacing.Front)
             {
-                correctedDegrees = (info.Orientation + degrees)%360;
-                correctedDegrees = (360 - correctedDegrees)%360; // compensate the mirror
+                correctedDegrees = (info.Orientation + degrees) % 360;
+                correctedDegrees = (360 - correctedDegrees) % 360; // compensate the mirror
             }
             else
             {
                 // back-facing
-                correctedDegrees = (info.Orientation - degrees + 360)%360;
+                correctedDegrees = (info.Orientation - degrees + 360) % 360;
             }
 
             return correctedDegrees;
