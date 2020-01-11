@@ -262,17 +262,17 @@ namespace MotoDetector.CameraAccess
         {
             using (var modelData = Application.Context.Assets.Open(ModelPlate))
             {
-                tfService_Plate = new TensorflowLiteService();
+                tfService_Plate = new TensorflowLiteService { ModelType = 0 };
                 tfService_Plate.Initialize(modelData, useNumThreads: true);
             }
             //using (var modelData = Application.Context.Assets.Open(ModelMoto))
             //{
-            //    tfService_Moto = new TensorflowLiteService();
+            //    tfService_Moto = new TensorflowLiteService { ModelType = 1 };
             //    tfService_Moto.Initialize(modelData, useNumThreads: true);
             //}
             //using (var modelData = Application.Context.Assets.Open(ModelMotoModel))
             //{
-            //    tfService_MotoModel = new TensorflowLiteService { ModelType = 1 };
+            //    tfService_MotoModel = new TensorflowLiteService { ModelType = 2 };
             //    tfService_MotoModel.Initialize(modelData, useNumThreads: true);
             //}
         }

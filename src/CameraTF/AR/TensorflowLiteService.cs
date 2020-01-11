@@ -2,6 +2,12 @@
 using Emgu.TF.Lite;
 using System;
 using System.IO;
+using Android.Gms.Vision.Texts;
+using Android.Gms.Vision;
+using Android.Util;
+using System.Text;
+using SkiaSharp.Views.Android;
+using SkiaSharp;
 
 namespace MotoDetector
 {
@@ -18,8 +24,17 @@ namespace MotoDetector
         private Tensor inputTensor;
         private Tensor[] outputTensors;
 
+        public TextRecognizer txtRecognizer;
+
+        private IntPtr imgptr;
+
         public bool Initialize(Stream modelData, bool useNumThreads)
         {
+            using (var builder = new TextRecognizer.Builder(MainActivity.context))
+            {
+                txtRecognizer = builder.Build();
+            }
+
             using (var ms = new MemoryStream())
             {
                 modelData.CopyTo(ms);
@@ -69,7 +84,8 @@ namespace MotoDetector
 
             if (ModelType == 0)
             {
-                //object detector
+
+                //object detector (plate)
 
                 var detectionBoxes = (float[])outputTensors[0].GetData();
                 var detectionClasses = (float[])outputTensors[1].GetData();
@@ -82,9 +98,54 @@ namespace MotoDetector
                 MainActivity.PlateAndMotoStats.Labels = detectionClasses;
                 MainActivity.PlateAndMotoStats.Scores = detectionScores;
                 MainActivity.PlateAndMotoStats.BoundingBoxes = detectionBoxes;
+
+            }
+            else if (ModelType == 1)
+            {
+
+                //object detector (moto)
+
+                var detectionBoxes = (float[])outputTensors[0].GetData();
+                var detectionClasses = (float[])outputTensors[1].GetData();
+                var detectionScores = (float[])outputTensors[2].GetData();
+                var detectionNumDetections = (float[])outputTensors[3].GetData();
+
+                var numDetections = (int)detectionNumDetections[0];
+
+                MainActivity.PlateAndMotoStats.NumDetections = numDetections;
+                MainActivity.PlateAndMotoStats.Labels = detectionClasses;
+                MainActivity.PlateAndMotoStats.Scores = detectionScores;
+                MainActivity.PlateAndMotoStats.BoundingBoxes = detectionBoxes;
+
+                if (!txtRecognizer.IsOperational)
+                {
+                    // Log.Error("Error", "Detector dependencies are not yet available");
+                }
+                else
+                {
+                    using (var builder = new Frame.Builder())
+                    {
+                        var cfg = Android.Graphics.Bitmap.Config.Argb8888;
+                        using (var bmp = Android.Graphics.Bitmap.CreateBitmap((int[])((int*)imgptr), 300, 300, cfg))
+                        {
+                            var frame = builder.SetBitmap(bmp).Build();
+                            var items = txtRecognizer.Detect(frame);
+                            var strBuilder = new StringBuilder();
+                            for (int i = 0; i < items.Size(); i++)
+                            {
+                                var item = (TextBlock)items.ValueAt(i);
+                                strBuilder.Append(item.Value);
+                                strBuilder.Append("/");
+                            }
+                            //txtView.Text = strBuilder.ToString();
+                        }
+                    }
+                }
+
             }
             else
             {
+
                 // image labeling
 
                 var detectionScores = (float[])outputTensors[0].GetData();
@@ -95,8 +156,9 @@ namespace MotoDetector
 
         }
 
-        private static void CopyColorsToTensor(IntPtr colors, int colorsCount, IntPtr dest)
+        private void CopyColorsToTensor(IntPtr colors, int colorsCount, IntPtr dest)
         {
+            imgptr = colors;
             var colorsPtr = (int*)colors;
             var destPtr = (float*)dest;
 
@@ -105,6 +167,7 @@ namespace MotoDetector
                 var val = colorsPtr[i];
 
                 //// AA RR GG BB
+                ///
                 var fr = ((float)((float)((val >> 16) & 0xFF) / 255.0f));
                 var fg = ((float)((float)((val >> 8) & 0xFF) / 255.0f));
                 var fb = ((float)((float)(val & 0xFF) / 255.0f));
@@ -114,5 +177,21 @@ namespace MotoDetector
                 *(destPtr + (i * 3) + 2) = fb;
             }
         }
+
+        private int[] CopyColorsToArray(IntPtr colors)
+        {
+
+            var colorsPtr = (int*)colors;
+
+            var values = new int[300 * 300];
+
+            for (var i = 0; i < 300 * 300; ++i)
+            {
+                values[i] = colorsPtr[i];
+            }
+
+            return values
+        }
+
     }
 }
