@@ -26,6 +26,28 @@ namespace MotoDetector
     public class MainActivity : AppCompatActivity
     {
 
+        // common
+
+        public static int WIDTH = 1080;
+        public static int HEIGHT = 1920;
+        public static string RESID = "1080p";
+
+        public static int FPS = 15;
+        public static int DETFPS = 1;
+        public static int MAXFPS = -1;
+
+        public static bool PRO_MODE = false;
+
+        public static SaveData SavedDataStore;
+
+        public static List<string> MotoLabels;
+
+        public static Dictionary<string, Moto> MotosList;
+
+        public static string DetectedMotoModel = "";
+
+        // android
+
         public static Activity context;
 
         private string[] labels_plate = { "???", "plate" };
@@ -40,13 +62,16 @@ namespace MotoDetector
 
         private static CameraSurfaceView cameraSurface;
 
-        public static Dictionary<string, Moto> MotosList;
-
-        public static List<string> MotoLabels;
-
         protected override void OnCreate(Bundle bundle)
         {
+
             base.OnCreate(bundle);
+
+            SavedDataStore = SaveData.Load();
+
+            if (SavedDataStore == null) SavedDataStore = new SaveData();
+
+            context = this;
 
             MotosList = Motos.Get();
 
@@ -73,7 +98,6 @@ namespace MotoDetector
             mainLayout.BringToFront();
             canvasView.BringToFront();
 
-            context = this;
 
         }
 
@@ -104,8 +128,8 @@ namespace MotoDetector
             var canvasWidth = e.Info.Width;
             var canvasHeight = e.Info.Height;
 
-            var cratio = (float)cameraSurface.cameraAnalyzer.cameraController.LastCameraDisplayHeight / (float)cameraSurface.cameraAnalyzer.cameraController.LastCameraDisplayWidth;
-            var pratio = cratio / ctodratio;
+            //var cratio = (float)cameraSurface.cameraAnalyzer.cameraController.LastCameraDisplayHeight / (float)cameraSurface.cameraAnalyzer.cameraController.LastCameraDisplayWidth;
+            //var pratio = cratio / ctodratio;
 
             canvas.Clear();
 
@@ -177,11 +201,6 @@ namespace MotoDetector
                     var top = (canvasHeight - canvasWidth) / 2 + xmin * canvasWidth;
                     var right = ymax * canvasWidth;
                     var bottom = (canvasHeight - canvasWidth) / 2 + xmax * canvasWidth;
-
-                    left *= pratio;
-                    top *= pratio;
-                    right *= pratio;
-                    bottom *= pratio;
 
                     DrawingHelper.DrawBoundingBox(
                         canvas,

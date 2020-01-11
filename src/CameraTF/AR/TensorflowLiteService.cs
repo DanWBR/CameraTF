@@ -8,6 +8,8 @@ using Android.Util;
 using System.Text;
 using SkiaSharp.Views.Android;
 using SkiaSharp;
+using System.Linq;
+using Android.Widget;
 
 namespace MotoDetector
 {
@@ -99,6 +101,62 @@ namespace MotoDetector
                 MainActivity.PlateAndMotoStats.Scores = detectionScores;
                 MainActivity.PlateAndMotoStats.BoundingBoxes = detectionBoxes;
 
+                if (!txtRecognizer.IsOperational)
+                {
+                    // Log.Error("Error", "Detector dependencies are not yet available");
+                }
+                else
+                {
+
+                    var maxscore = detectionScores.Max();
+
+                    if (maxscore > 0.6)
+                    {
+                        var i0 = detectionScores.ToList().IndexOf(maxscore);
+                        var bboxes = detectionBoxes.ToList();
+
+                        var xmin = bboxes[i0 * 4 + 0] * 300;
+                        var ymin = bboxes[i0 * 4 + 1] * 300;
+                        var xmax = bboxes[i0 * 4 + 2] * 300;
+                        var ymax = bboxes[i0 * 4 + 3] * 300;
+
+                        if (xmin < 0) xmin = 0;
+                        if (ymin < 0) ymin = 0;
+                        if (xmax > 300) xmax = 300;
+                        if (ymax > 300) ymax = 300;
+
+                        var w = xmax - xmin;
+                        var h = ymax - ymin;
+
+                        using (var builder = new Frame.Builder())
+                        {
+                            var cfg = Android.Graphics.Bitmap.Config.Argb8888;
+                            using (var bmp = Android.Graphics.Bitmap.CreateBitmap(CopyColorsToArray(imgptr), 300, 300, cfg))
+                            {
+                                var bmpc = Android.Graphics.Bitmap.CreateBitmap(bmp, (int)xmin, (int)ymin, (int)(w), (int)(h));
+                                using (bmpc)
+                                {
+                                    var frame = builder.SetBitmap(bmpc).Build();
+                                    var items = txtRecognizer.Detect(frame);
+                                    var strBuilder = new StringBuilder();
+                                    for (int i = 0; i < items.Size(); i++)
+                                    {
+                                        var item = (TextBlock)items.ValueAt(i);
+                                        strBuilder.Append("i = " + i + ": " + item.Value + "|");
+                                    }
+
+                                    MainActivity.context.RunOnUiThread(() =>
+                                    {
+                                        var txtView = MainActivity.context.FindViewById<TextView>(Resource.Id.txtObjID);
+                                        txtView.Text = strBuilder.ToString();
+                                    });
+
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
             else if (ModelType == 1)
             {
@@ -117,31 +175,6 @@ namespace MotoDetector
                 MainActivity.PlateAndMotoStats.Scores = detectionScores;
                 MainActivity.PlateAndMotoStats.BoundingBoxes = detectionBoxes;
 
-                if (!txtRecognizer.IsOperational)
-                {
-                    // Log.Error("Error", "Detector dependencies are not yet available");
-                }
-                else
-                {
-                    using (var builder = new Frame.Builder())
-                    {
-                        var cfg = Android.Graphics.Bitmap.Config.Argb8888;
-                        using (var bmp = Android.Graphics.Bitmap.CreateBitmap((int[])((int*)imgptr), 300, 300, cfg))
-                        {
-                            var frame = builder.SetBitmap(bmp).Build();
-                            var items = txtRecognizer.Detect(frame);
-                            var strBuilder = new StringBuilder();
-                            for (int i = 0; i < items.Size(); i++)
-                            {
-                                var item = (TextBlock)items.ValueAt(i);
-                                strBuilder.Append(item.Value);
-                                strBuilder.Append("/");
-                            }
-                            //txtView.Text = strBuilder.ToString();
-                        }
-                    }
-                }
-
             }
             else
             {
@@ -151,6 +184,30 @@ namespace MotoDetector
                 var detectionScores = (float[])outputTensors[0].GetData();
 
                 MainActivity.MotoModelStats.Scores2 = detectionScores;
+
+                var maxscore = detectionScores.Max();
+
+                var i0 = detectionScores.ToList().IndexOf(maxscore);
+
+                MainActivity.context.RunOnUiThread(() =>
+                {
+                    var txtView = MainActivity.context.FindViewById<TextView>(Resource.Id.txtObjID);
+                    var fab = MainActivity.MotosList[MainActivity.MotoLabels[i0]].Fabricante;
+                    var modelo = MainActivity.MotosList[MainActivity.MotoLabels[i0]].Modelo;
+                    txtView.Text = fab + " " + modelo + " (" + (maxscore * 100).ToString("N2") + "%)";
+                    if (maxscore > 0.8)
+                    {
+                        txtView.SetTextColor(Android.Graphics.Color.Green);
+                    }
+                    else if (maxscore > 0.6)
+                    {
+                        txtView.SetTextColor(Android.Graphics.Color.Yellow);
+                    }
+                    else
+                    {
+                        txtView.SetTextColor(Android.Graphics.Color.Red);
+                    }
+                });
 
             }
 
@@ -178,7 +235,7 @@ namespace MotoDetector
             }
         }
 
-        private int[] CopyColorsToArray(IntPtr colors)
+        private static int[] CopyColorsToArray(IntPtr colors)
         {
 
             var colorsPtr = (int*)colors;
@@ -190,7 +247,7 @@ namespace MotoDetector
                 values[i] = colorsPtr[i];
             }
 
-            return values
+            return values;
         }
 
     }
