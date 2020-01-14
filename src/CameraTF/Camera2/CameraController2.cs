@@ -116,6 +116,8 @@ namespace MotoDetector
         // A {@link CameraCaptureSession.CaptureCallback} that handles events related to JPEG capture.
         public CameraCaptureListener mCaptureCallback;
 
+        public CameraCaptureSessionCallback mCameraCaptureSessionCallback;
+
         // Shows a {@link Toast} on the UI thread.
         public void ShowToast(string text)
         {
@@ -449,7 +451,7 @@ namespace MotoDetector
         }
 
         // Creates a new {@link CameraCaptureSession} for camera preview.
-        public void CreateCameraPreviewSession()
+        public void CreateCameraPreviewSession(bool builderexists = false)
         {
             try
             {
@@ -466,15 +468,17 @@ namespace MotoDetector
                 var surface = new Surface(texture);
 
                 // We set up a CaptureRequest.Builder with the output Surface.
-                mPreviewRequestBuilder = mCameraDevice.CreateCaptureRequest(CameraTemplate.Preview);
+                if (!builderexists) mPreviewRequestBuilder = mCameraDevice.CreateCaptureRequest(CameraTemplate.Preview);
 
                 //mPreviewRequestBuilder.Set(CaptureRequest.ControlAeTargetFpsRange, new Android.Util.Range(30, 120));
 
-                //mPreviewRequestBuilder.Set(CaptureRequest.ControlAfMode, (int)ControlAFMode.ContinuousVideo);
                 mPreviewRequestBuilder.Set(CaptureRequest.ControlAeMode, (int)ControlAEMode.On);
                 mPreviewRequestBuilder.Set(CaptureRequest.ControlAwbMode, (int)ControlAwbMode.Auto);
-                //mPreviewRequestBuilder.Set(CaptureRequest.ControlAfTrigger, (int)ControlAFTrigger.Start);
                 mPreviewRequestBuilder.Set(CaptureRequest.ControlAePrecaptureTrigger, (int)ControlAEPrecaptureTrigger.Start);
+                mPreviewRequestBuilder.Set(CaptureRequest.LensOpticalStabilizationMode, (int)LensOpticalStabilizationMode.On);
+                mPreviewRequestBuilder.Set(CaptureRequest.EdgeMode, (int)EdgeMode.Fast);
+                mPreviewRequestBuilder.Set(CaptureRequest.ShadingMode, (int)ShadingMode.HighQuality);
+                mPreviewRequestBuilder.Set(CaptureRequest.TonemapMode, (int)TonemapMode.HighQuality);
 
                 mPreviewRequestBuilder.AddTarget(surface);
 
@@ -483,7 +487,10 @@ namespace MotoDetector
                 var surfaces = new List<Surface>();
                 surfaces.Add(surface);
                 surfaces.Add(mImageReader.Surface);
-                mCameraDevice.CreateCaptureSession(surfaces, new CameraCaptureSessionCallback(this), null);
+
+                mCameraCaptureSessionCallback = new CameraCaptureSessionCallback(this);
+
+                mCameraDevice.CreateCaptureSession(surfaces, mCameraCaptureSessionCallback, null);
 
             }
             catch (CameraAccessException e)

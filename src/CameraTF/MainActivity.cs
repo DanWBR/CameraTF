@@ -82,6 +82,12 @@ namespace MotoDetector
 
             var numCameras = manager.GetCameraIdList().Length;
 
+            if (numCameras == 0)
+            {
+                s.MessageBox(this, "Erro", "Infelizmente o MotoDetector não funcionará no seu dispositivo, " +
+                    "pois ele não suporta a API Camera2.", null);
+            }
+
             var cameraIDs = new List<string>();
 
             for (var i = 0; i < numCameras; i++)
@@ -215,6 +221,58 @@ namespace MotoDetector
                     var txtView = MainActivity.context.FindViewById<TextView>(Resource.Id.txtObjID);
                     txtView.SetTextColor(Android.Graphics.Color.White);
                 });
+            };
+
+            //var btnRecord = this.FindViewById<ImageButton>(Resource.Id.imageButtonRecord);
+
+            //btnRecord.Click += (sender, e) =>
+            //{
+
+            //};
+
+            btnSettings.Click += (sender, e) =>
+            {
+                DisplaySettingsView();
+            };
+
+            var zoomslider = MainActivity.context.FindViewById<SeekBar>(Resource.Id.seekBarZoom);
+
+            zoomslider.ProgressChanged += (s, e) =>
+            {
+                var characteristics = manager.GetCameraCharacteristics(SavedDataStore.Camera);
+                float maxZoom = (float)characteristics.Get(CameraCharacteristics.ScalerAvailableMaxDigitalZoom);
+                float currentZoom = 1.0f;
+                if (zoomslider.Progress >= 100)
+                {
+                    currentZoom = maxZoom;
+                }
+                else
+                {
+                    currentZoom = (float)zoomslider.Progress / 100.0f * maxZoom;
+                }
+                var controller = cameraSurface.cameraAnalyzer.cameraController;
+                Rect m = (Rect)characteristics.Get(CameraCharacteristics.SensorInfoActiveArraySize);
+                var w = (m.Right - m.Left) / 2.5;
+                var h = (m.Bottom - m.Top) / 2.5;
+                var factor = currentZoom / maxZoom;
+                Rect m1 = new Rect((int)(m.Left + w * factor), (int)(m.Top + h * factor), (int)(m.Right - w * factor), (int)(m.Bottom - h * factor));
+                controller.mPreviewRequestBuilder.Set(CaptureRequest.ScalerCropRegion, m1);
+                controller.mCameraCaptureSessionCallback.OnConfigured(controller.mCaptureSession);
+            };
+
+            var zoomexposure = MainActivity.context.FindViewById<SeekBar>(Resource.Id.seekBarExposure);
+
+            zoomexposure.ProgressChanged += (s, e) =>
+            {
+                var characteristics = manager.GetCameraCharacteristics(SavedDataStore.Camera);
+                float value = (float)zoomexposure.Progress;
+                var range1 = (Android.Util.Range)characteristics.Get(CameraCharacteristics.ControlAeCompensationRange);
+                int minExposure = (int)range1.Lower;
+                int maxExposure = (int)range1.Upper;
+                int adjustedvalue = (int)(value * ((float)maxExposure - (float)minExposure) / 200.0f);
+                var controller = cameraSurface.cameraAnalyzer.cameraController;
+                controller.mPreviewRequestBuilder.Set(CaptureRequest.ControlAeExposureCompensation, adjustedvalue);
+                controller.mCameraCaptureSessionCallback.OnConfigured(controller.mCaptureSession);
             };
 
             var sw = new Stopwatch();
