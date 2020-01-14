@@ -22,6 +22,8 @@ using Math = Java.Lang.Math;
 using Orientation = Android.Content.Res.Orientation;
 using MotoDetector.Listeners;
 using System.Linq;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Crashes;
 
 namespace MotoDetector
 {
@@ -55,8 +57,6 @@ namespace MotoDetector
         public static int MAX_FPS = 60;
 
         public static Size[] OutputSizes;
-
-        public static long minFrameDuration;
 
         // TextureView.ISurfaceTextureListener handles several lifecycle events on a TextureView
         public Camera2BasicSurfaceTextureListener mSurfaceTextureListener;
@@ -272,7 +272,7 @@ namespace MotoDetector
 
                 OutputSizes = map.GetOutputSizes((int)Android.Graphics.ImageFormat.Yuv420888);
 
-                minFrameDuration = map.GetOutputMinFrameDuration((int)Android.Graphics.ImageFormat.Yuv420888, new Size(1920, 1080));
+                //minFrameDuration = map.GetOutputMinFrameDuration((int)Android.Graphics.ImageFormat.Yuv420888, new Size(1920, 1080));
 
                 // For still image captures, we use the largest available size.
                 Size largest = (Size)Collections.Max(Arrays.AsList(map.GetOutputSizes((int)ImageFormatType.Jpeg)), new CompareSizesByArea());
@@ -350,6 +350,7 @@ namespace MotoDetector
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }
@@ -385,10 +386,12 @@ namespace MotoDetector
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
             catch (InterruptedException e)
             {
+                Crashes.TrackError(e);
                 throw new RuntimeException("Interrupted while trying to lock camera opening.", e);
             }
         }
@@ -417,6 +420,7 @@ namespace MotoDetector
             }
             catch (InterruptedException e)
             {
+                Crashes.TrackError(e);
                 throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
             }
             finally
@@ -446,6 +450,7 @@ namespace MotoDetector
             }
             catch (InterruptedException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }
@@ -495,6 +500,7 @@ namespace MotoDetector
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }
@@ -559,6 +565,7 @@ namespace MotoDetector
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }
@@ -577,6 +584,7 @@ namespace MotoDetector
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }
@@ -609,6 +617,7 @@ namespace MotoDetector
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }

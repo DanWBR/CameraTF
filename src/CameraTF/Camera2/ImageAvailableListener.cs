@@ -2,6 +2,7 @@ using Android.Media;
 using Java.IO;
 using Java.Lang;
 using Java.Nio;
+using Microsoft.AppCenter.Crashes;
 
 namespace MotoDetector.Listeners
 {
@@ -62,6 +63,7 @@ namespace MotoDetector.Listeners
                     }
                     catch (IOException e)
                     {
+                        Crashes.TrackError(e);
                         e.PrintStackTrace();
                     }
                     finally

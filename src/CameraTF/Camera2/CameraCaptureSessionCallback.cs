@@ -1,4 +1,5 @@
 using Android.Hardware.Camera2;
+using Microsoft.AppCenter.Crashes;
 
 namespace MotoDetector.Listeners
 {
@@ -42,6 +43,7 @@ namespace MotoDetector.Listeners
             }
             catch (CameraAccessException e)
             {
+                Crashes.TrackError(e);
                 e.PrintStackTrace();
             }
         }
