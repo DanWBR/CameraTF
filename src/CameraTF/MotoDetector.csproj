@@ -81,6 +81,7 @@
     <Compile Include="Camera2\CompareSizesByArea.cs" />
     <Compile Include="Classes\Shared.cs" />
     <Compile Include="BlankView.cs" />
+    <Compile Include="AboutView.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidNativeLibrary Include="Libs\EmguTF\arm64-v8a\libtfliteextern.so" />
@@ -259,6 +260,18 @@
       <Generator></Generator>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\BlankLayout.axml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\about.axml">
+      <SubType></SubType>
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\values\Strings.xml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\values\file_paths.xml">
       <SubType></SubType>
       <Generator></Generator>
     </AndroidResource>

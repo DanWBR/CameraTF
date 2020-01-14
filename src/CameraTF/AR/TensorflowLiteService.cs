@@ -148,6 +148,8 @@ namespace MotoDetector
                         var label = MainActivity.MotoLabels[i0];
                         if (MainActivity.MotosList.ContainsKey(label))
                         {
+                            MainActivity.DetectedMotoModel = label;
+                            MainActivity.DetectedPlate = "";
                             var fab = MainActivity.MotosList[label].Fabricante;
                             var modelo = MainActivity.MotosList[label].Modelo;
                             txtView.Text = fab + " " + modelo + " (" + (maxscore * 100).ToString("N2") + "%)";
@@ -166,11 +168,15 @@ namespace MotoDetector
                         }
                         else
                         {
+                            MainActivity.DetectedMotoModel = "";
+                            MainActivity.DetectedPlate = "";
                             txtView.Text = "";
                         }
                     }
                     else
                     {
+                        MainActivity.DetectedMotoModel = "";
+                        MainActivity.DetectedPlate = "";
                         txtView.Text = "";
                     }
                 });
@@ -181,6 +187,9 @@ namespace MotoDetector
 
         private void CropAndParse()
         {
+
+            MainActivity.DetectedMotoModel = "";
+            MainActivity.DetectedPlate = "";
 
             if (!txtRecognizer.IsOperational)
             {
@@ -238,6 +247,7 @@ namespace MotoDetector
                                 Console.WriteLine(plate);
                                 if (CheckIsValidPlate(plate))
                                 {
+                                    MainActivity.DetectedPlate = plate;
                                     MainActivity.context.RunOnUiThread(() =>
                                     {
                                         var imgView = MainActivity.context.FindViewById<ImageView>(Resource.Id.imageViewPlatePreview);

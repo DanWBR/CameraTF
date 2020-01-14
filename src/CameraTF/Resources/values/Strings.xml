@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MotoDetector</string>
+    <string name="disclaimer">Os Modelos de Aprendizado de Máquina (Machine Learning) presentes no MotoDetector fornecem apenas uma previsão imprecisa sobre a realidade, tentando adivinhar o que pode estar sendo observado através da câmera. NÃO UTILIZE este aplicativo para outros fins exceto para entretenimento pessoal. O desenvolvedor não se responsabiliza pelas previsões obtidas através do aplicativo e nem pelas consequências da utilização de tais previsões pelo usuário.</string>
+</resources>

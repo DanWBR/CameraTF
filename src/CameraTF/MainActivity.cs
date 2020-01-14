@@ -56,6 +56,8 @@ namespace MotoDetector
 
         public static string DetectedMotoModel = "";
 
+        public static string DetectedPlate = "";
+
         public static int NumberOfCameras = 1;
 
         // android
@@ -202,6 +204,13 @@ namespace MotoDetector
                 ConfigureCapture();
             };
 
+            var btnInfo = this.FindViewById<ImageButton>(Resource.Id.btnInfo);
+
+            btnInfo.Click += (sender, e) =>
+            {
+                DisplayMotoDetails();
+            };
+
             var btnSettings = this.FindViewById<ImageButton>(Resource.Id.imageButtonSettings);
 
             btnSettings.Click += (sender, e) =>
@@ -221,18 +230,6 @@ namespace MotoDetector
                     var txtView = MainActivity.context.FindViewById<TextView>(Resource.Id.txtObjID);
                     txtView.SetTextColor(Android.Graphics.Color.White);
                 });
-            };
-
-            //var btnRecord = this.FindViewById<ImageButton>(Resource.Id.imageButtonRecord);
-
-            //btnRecord.Click += (sender, e) =>
-            //{
-
-            //};
-
-            btnSettings.Click += (sender, e) =>
-            {
-                DisplaySettingsView();
             };
 
             var zoomslider = MainActivity.context.FindViewById<SeekBar>(Resource.Id.seekBarZoom);
@@ -479,6 +476,77 @@ namespace MotoDetector
             }
         }
 
+        private void DisplayMotoDetails()
+        {
+
+            if (DetectedPlate == "" && DetectedMotoModel == "") return;
+
+            var alert = new AlertDialog.Builder(this);
+            var view = new BlankView(this);
+            alert.SetView(view);
+
+            var lID = Resource.Id.BlankLayoutContainer;
+
+            if (DetectedPlate != "")
+            {
+
+                s.CreateAndAddLabelBoxRow(view, lID, "VERIFICAR PLACA");
+                s.CreateAndAddLabelBoxRow(view, lID, "Placa: " + DetectedPlate);
+                s.CreateAndAddDescriptionRow2(view, lID, "Insira a placa detectada nos campos abaixo para verificar marca, modelo e outras informações do veículo.");
+
+                s.CreateAndAddDescriptionRow2(view, lID, "");
+
+                var url = "https://cidadao.sinesp.gov.br/sinesp-cidadao/";
+
+                var web = new Android.Webkit.WebView(this);
+
+                web.LoadUrl(url);
+
+                LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent, 1.0f);
+                param2.LeftMargin = (int)(5 + 0.5f);
+                param2.RightMargin = (int)(5 + 0.5f);
+                param2.TopMargin = (int)(5 + 0.5f);
+                param2.BottomMargin = (int)(5 + 0.5f);
+                param2.Weight = 1.0f;
+
+                web.LayoutParameters = param2;
+
+                var layout = view.FindViewById<LinearLayout>(lID);
+
+                layout.AddView(web);
+
+            }
+            else
+            {
+                if (MotosList.ContainsKey(DetectedMotoModel))
+                {
+                    s.CreateAndAddLabelBoxRow(view, lID, "INFORMAÇÕES");
+
+                    var moto = MotosList[DetectedMotoModel];
+
+                    s.CreateAndAddDescriptionRow(view, lID, "Fabricante", moto.Fabricante);
+                    s.CreateAndAddDescriptionRow(view, lID, "Modelo", moto.Modelo);
+                    s.CreateAndAddDescriptionRow(view, lID, "Ciclo", moto.Ciclo);
+                    s.CreateAndAddDescriptionRow(view, lID, "Cilindrada (cm3)", moto.Volume);
+                    s.CreateAndAddDescriptionRow(view, lID, "Potência (cv)", moto.Potencia);
+                    s.CreateAndAddDescriptionRow(view, lID, "Peso (kg)", moto.Peso);
+                    s.CreateAndAddDescriptionRow(view, lID, "Peso/Potência (kg/cv)", moto.Peso_Pot);
+                    s.CreateAndAddDescriptionRow(view, lID, "Comprimento (mm)", moto.Comprimento);
+                    s.CreateAndAddDescriptionRow(view, lID, "Largura (mm)", moto.Largura);
+                    s.CreateAndAddDescriptionRow(view, lID, "Altura (mm)", moto.Altura);
+                    s.CreateAndAddDescriptionRow(view, lID, "Altura do Assento (mm)", moto.Altura_Assento);
+
+                }
+            }
+
+            alert.SetCancelable(true);
+            alert.SetPositiveButton("OK", (sender, e2) =>
+            {
+            });
+            alert.Create().Show();
+
+        }
+
         private void DisplaySettingsView()
         {
 
@@ -644,39 +712,21 @@ namespace MotoDetector
             s.CreateAndAddBoldDescriptionRow2(view, lID, "Clique no botão acima para inserir as placas que serão reconhecidas como " +
                 "roubadas ou clonadas quando o Detector de Placas de Veículos estiver selecionado.");
 
-            //if (ProductInfos != null)
-            //{
+            s.CreateAndAddLabelBoxRow(view, lID, "SOBRE");
 
-            //    var sec3 = new Section("Compras no App");
+            s.CreateAndAddButtonRow(view, lID, "Sobre o MotoDetector", (o, e, b) =>
+            {
 
-            //    var p = ProductInfos.FirstOrDefault();
+                var alert2 = new AlertDialog.Builder(this);
+                var view2 = new AboutView(this);
+                alert2.SetView(view2);
+                alert2.SetCancelable(false);
+                alert2.SetPositiveButton("OK", (sender, e2) =>
+                {
+                });
+                alert2.Create().Show();
 
-            //    if (p != null)
-            //    {
-            //        if (WasProductPurchased(p.ProductId))
-            //        {
-            //            sec3.Add(s.CreateAndAddButtonRow("Modo PRO (Comprado)", (o, e, se) =>
-            //            {
-            //            }));
-            //        }
-            //        else
-            //        {
-            //            sec3.Add(s.CreateAndAddButtonRow("Modo PRO (" + p.LocalizedPrice + ")", (o, e, se) =>
-            //            {
-            //                _ = MakePurchase(p.ProductId);
-            //            }));
-            //            sec3.Add(s.CreateAndAddDescriptionRow2("O Modo PRO habilita mais opções de velocidade de captura (30, 60, 120 e 240 fps), Resoluções Full HD e 4K, Controles Manuais de Foco e Compensação de Exposição e Gravação da Tela."));
-            //        }
-            //    }
-
-            //    sec3.Add(s.CreateAndAddButtonRow("Restaurar Compras", (o, e, se) =>
-            //    {
-            //        _ = CheckPurchases(true);
-            //    }));
-            //    //sec3.Add(s.CreateAndAddDescriptionRow2("Use este botão para tentar restaurar manualmente uma compra anterior feita na App Store."));
-
-            //    root.Add(sec3);
-            //}
+            });
 
             alert.SetCancelable(true);
             alert.SetNegativeButton("CANCELAR", (sender, e2) => { });
@@ -684,7 +734,10 @@ namespace MotoDetector
             {
                 SavedDataStore.Save();
                 UpdateCameraSettings();
-                ConfigureCapture();
+                RunOnUiThread(() =>
+                {
+                    ConfigureCapture();
+                });
             });
             alert.Create().Show();
 
