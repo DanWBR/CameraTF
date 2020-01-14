@@ -7,9 +7,9 @@ namespace MotoDetector.Helpers
         private static readonly SKPaint boundingBoxPaint = new SKPaint
         {
             StrokeWidth = 5,
-            Color = SKColors.Red,
+            Color = SKColors.White,
             Style = SKPaintStyle.Stroke,
-            IsAntialias = true,
+            IsAntialias = false,
         };
 
         private static readonly SKPaint textPaint = new SKPaint

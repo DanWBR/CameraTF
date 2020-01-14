@@ -7,9 +7,8 @@ using MotoDetector.CameraAccess;
 
 namespace MotoDetector
 {
-    public class CameraSurfaceView : SurfaceView, ISurfaceHolderCallback
+    public class CameraSurfaceView : TextureView
     {
-        private bool addedHolderCallback = false;
         private bool surfaceCreated;
 
         public CameraAnalyzer cameraAnalyzer;
@@ -28,48 +27,17 @@ namespace MotoDetector
 
         private void Init()
         {
-            if (cameraAnalyzer == null)
-                cameraAnalyzer = new CameraAnalyzer(this);
+            if (cameraAnalyzer == null) cameraAnalyzer = new CameraAnalyzer(this);
 
-            if (!addedHolderCallback)
-            {
-                Holder.AddCallback(this);
-                Holder.SetType(SurfaceType.PushBuffers);
-                addedHolderCallback = true;
-            }
         }
 
-        public async void SurfaceCreated(ISurfaceHolder holder)
+        public void Restart()
         {
-            await PermissionsHandler.PermissionRequestTask;
-
-            cameraAnalyzer.SetupCamera();
-
-            surfaceCreated = true;
-        }
-
-        public async void SurfaceChanged(ISurfaceHolder holder, Format format, int wx, int hx)
-        {
-            await PermissionsHandler.PermissionRequestTask;
-
-            cameraAnalyzer.RefreshCamera();
-        }
-
-        public async void SurfaceDestroyed(ISurfaceHolder holder)
-        {
-            await PermissionsHandler.PermissionRequestTask;
-
-            try
-            {
-                if (addedHolderCallback)
-                {
-                    Holder.RemoveCallback(this);
-                    addedHolderCallback = false;
-                }
-            }
-            catch { }
-
-            cameraAnalyzer.ShutdownCamera();
+            cameraAnalyzer.Stop();
+            cameraAnalyzer.cameraController.mSurfaceTextureListener.ClearHandlers();
+            cameraAnalyzer.cameraController.mSurfaceTextureListener = null;
+            cameraAnalyzer = null;
+            cameraAnalyzer = new CameraAnalyzer(this);
         }
 
         protected override void OnAttachedToWindow()
@@ -96,7 +64,7 @@ namespace MotoDetector
 
             if (surfaceCreated)
             {
-                cameraAnalyzer.RefreshCamera();
+                //cameraAnalyzer.RefreshCamera();
             }
         }
 
@@ -108,7 +76,7 @@ namespace MotoDetector
             var displaywidth = Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Width;
             var dratio = displayheight / displaywidth;
             var cratio = (float)height / (float)width;
-            MainActivity.ctodratio = cratio;
+            MainActivity.ctodratio = (float)(dratio / cratio);
             SetMeasuredDimension((int)((double)width * dratio / cratio), height);
             //base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
         }

@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="fill_parent"
@@ -85,7 +86,6 @@
 							android:layout_height="match_parent"
 							android:id="@+id/textViewCPU"
 							android:layout_gravity="top"
-							android:text="100%"
 							android:gravity="center_vertical"
 							android:textColor="#ffffffff" />
 						<ImageButton
@@ -97,7 +97,6 @@
 							android:background="@android:color/transparent"
 							android:padding="5dp" />
 						<TextView
-							android:text="Text"
 							android:layout_width="wrap_content"
 							android:layout_height="match_parent"
 							android:id="@+id/textViewFPS"
@@ -128,7 +127,6 @@
 							android:layout_height="match_parent"
 							android:id="@+id/textViewMEM"
 							android:layout_gravity="top"
-							android:text="100%"
 							android:gravity="center_vertical"
 							android:textColor="#ffffffff" />
 						<ImageButton
@@ -141,7 +139,6 @@
 							android:background="@android:color/transparent"
 							android:padding="5dp" />
 						<TextView
-							android:text="Text"
 							android:layout_width="wrap_content"
 							android:layout_height="match_parent"
 							android:id="@+id/textViewAFPS"
@@ -167,6 +164,21 @@
 				android:layout_height="wrap_content"
 				android:id="@+id/frameLayout1"
 				android:layout_weight="1">
+				<ImageView
+					android:layout_width="100dp"
+					android:layout_height="100dp"
+					android:id="@+id/imageViewPlatePreview"
+					android:layout_gravity="bottom|right"
+					android:scaleType="fitXY" />
+				<ImageButton
+					android:src="@drawable/high_priority"
+					android:layout_width="100dp"
+					android:layout_height="100dp"
+					android:id="@+id/imageButtonWarning"
+					android:layout_gravity="left|bottom"
+					android:scaleType="fitXY"
+					android:background="@color/mtrl_btn_transparent_bg_color"
+					tools:visibility="gone" />
 			</FrameLayout>
 			<LinearLayout
 				android:orientation="horizontal"
@@ -174,7 +186,7 @@
 				android:minHeight="25px"
 				android:layout_width="match_parent"
 				android:layout_height="50dp"
-				android:id="@+id/linearLayout5"
+				android:id="@+id/linearLayoutLabelPanel"
 				android:background="#bc000000">
 				<LinearLayout
 					android:orientation="horizontal"
@@ -184,7 +196,6 @@
 					android:layout_height="match_parent"
 					android:id="@+id/linearLayout6">
 					<TextView
-						android:text="Text"
 						android:layout_width="wrap_content"
 						android:layout_height="fill_parent"
 						android:id="@+id/txtObjID"
@@ -192,7 +203,8 @@
 						android:gravity="center_vertical"
 						android:textStyle="bold"
 						android:textColor="#ffffffff"
-						android:padding="15dp" />
+						android:padding="15dp"
+						android:text="Procurando Objetos..." />
 					<ImageButton
 						android:src="@drawable/info"
 						android:layout_width="50dp"
@@ -247,32 +259,39 @@
 							android:layout_width="wrap_content"
 							android:layout_height="match_parent"
 							android:id="@+id/radioGroup1"
-							android:gravity="center"
+							android:gravity="left|center"
 							android:layout_weight="1"
 							android:orientation="horizontal"
-							android:layout_gravity="center">
+							android:layout_gravity="left">
 							<RadioButton
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
 								android:checked="true"
 								android:id="@+id/radioButton1"
-								android:text="WIDE"
 								android:textColor="#ffffffff"
-								android:buttonTint="#ffffffff" />
+								android:buttonTint="#ffffffff"
+								android:text="1" />
 							<RadioButton
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
 								android:id="@+id/radioButton2"
-								android:text="NORMAL"
 								android:textColor="#ffffffff"
-								android:buttonTint="#ffffffff" />
+								android:buttonTint="#ffffffff"
+								android:text="2" />
 							<RadioButton
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
 								android:id="@+id/radioButton3"
-								android:text="TELE"
 								android:textColor="#ffffffff"
-								android:buttonTint="#ffffffff" />
+								android:buttonTint="#ffffffff"
+								android:text="3" />
+							<RadioButton
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:id="@+id/radioButton4"
+								android:textColor="#ffffffff"
+								android:buttonTint="#ffffffff"
+								android:text="4" />
 						</RadioGroup>
 					</LinearLayout>
 					<LinearLayout

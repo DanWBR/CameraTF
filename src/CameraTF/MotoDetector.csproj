@@ -27,18 +27,17 @@
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
     <ConsolePause>False</ConsolePause>
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
     <AndroidUseAapt2>true</AndroidUseAapt2>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>full</DebugType>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>False</ConsolePause>
     <AndroidUseAapt2>false</AndroidUseAapt2>
@@ -67,10 +66,21 @@
     <Compile Include="CameraSurfaceView.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Classes\Sinesp.cs" />
-    <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Classes\SaveData.cs" />
     <Compile Include="Classes\Motos.cs" />
     <Compile Include="Classes\Features.cs" />
     <Compile Include="Classes\ColorConversion.cs" />
+    <Compile Include="Camera2\CameraController2.cs" />
+    <Compile Include="Camera2\ImageAvailableListener.cs" />
+    <Compile Include="Camera2\CameraStateListener.cs" />
+    <Compile Include="Camera2\CameraCaptureSessionCallback.cs" />
+    <Compile Include="Camera2\CameraCaptureStillPictureSessionCallback.cs" />
+    <Compile Include="Camera2\CameraCaptureListener.cs" />
+    <Compile Include="Camera2\Camera2BasicSurfaceTextureListener.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Camera2\CompareSizesByArea.cs" />
+    <Compile Include="Classes\Shared.cs" />
+    <Compile Include="BlankView.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidNativeLibrary Include="Libs\EmguTF\arm64-v8a\libtfliteextern.so" />
@@ -89,11 +99,15 @@
     <AndroidAsset Include="Assets\privacypolicy.txt" />
     <AndroidAsset Include="Assets\moto_detector.tflite" />
     <AndroidAsset Include="Assets\moto_model_detector.txt" />
+    <AndroidAsset Include="Assets\warning.mp3" />
+    <AndroidAsset Include="Assets\warning.json" />
+    <AndroidAsset Include="Assets\anim_scan.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
     <Folder Include="Data\" />
     <Folder Include="Classes\" />
+    <Folder Include="Camera2\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <ItemGroup>
@@ -244,12 +258,10 @@
       <SubType></SubType>
       <Generator></Generator>
     </AndroidResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Emgu.TF.Lite\Emgu.TF.Lite.csproj">
-      <Project>{d7707a6b-d4db-4979-b04c-aa1c179cebe9}</Project>
-      <Name>Emgu.TF.Lite</Name>
-    </ProjectReference>
+    <AndroidResource Include="Resources\layout\BlankLayout.axml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\styles.xml" />
@@ -259,4 +271,22 @@
     <EmbeddedResource Include="Data\features.csv" />
     <EmbeddedResource Include="Data\motos.csv" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Emgu.TF.Lite\Emgu.TF.Lite.csproj">
+      <Project>{D7707A6B-D4DB-4979-B04C-AA1C179CEBE9}</Project>
+      <Name>Emgu.TF.Lite</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy TabWidth="4" IndentWidth="4" RemoveTrailingWhitespace="True" NoTabsAfterNonTabs="False" EolMarker="Native" FileWidth="80" TabsToSpaces="True" scope="text/x-csharp" />
+          <CSharpFormattingPolicy IndentBlock="True" IndentBraces="False" IndentSwitchSection="True" IndentSwitchCaseSection="True" LabelPositioning="OneLess" NewLinesForBracesInTypes="True" NewLinesForBracesInMethods="True" NewLinesForBracesInProperties="True" NewLinesForBracesInAccessors="True" NewLinesForBracesInAnonymousMethods="True" NewLinesForBracesInControlBlocks="True" NewLinesForBracesInAnonymousTypes="True" NewLinesForBracesInObjectCollectionArrayInitializers="True" NewLinesForBracesInLambdaExpressionBody="True" NewLineForElse="True" NewLineForCatch="True" NewLineForFinally="True" NewLineForMembersInObjectInit="True" NewLineForMembersInAnonymousTypes="True" NewLineForClausesInQuery="True" SpacingAfterMethodDeclarationName="False" SpaceWithinMethodDeclarationParenthesis="False" SpaceBetweenEmptyMethodDeclarationParentheses="False" SpaceAfterMethodCallName="False" SpaceWithinMethodCallParentheses="False" SpaceBetweenEmptyMethodCallParentheses="False" SpaceAfterControlFlowStatementKeyword="True" SpaceWithinExpressionParentheses="False" SpaceWithinCastParentheses="False" SpaceWithinOtherParentheses="False" SpaceAfterCast="False" SpacesIgnoreAroundVariableDeclaration="False" SpaceBeforeOpenSquareBracket="False" SpaceBetweenEmptySquareBrackets="False" SpaceWithinSquareBrackets="False" SpaceAfterColonInBaseTypeDeclaration="True" SpaceAfterComma="True" SpaceAfterDot="False" SpaceAfterSemicolonsInForStatement="True" SpaceBeforeColonInBaseTypeDeclaration="True" SpaceBeforeComma="False" SpaceBeforeDot="False" SpaceBeforeSemicolonsInForStatement="False" SpacingAroundBinaryOperator="Single" WrappingPreserveSingleLine="True" WrappingKeepStatementsOnSingleLine="True" scope="text/x-csharp" />
+          <TextStylePolicy inheritsSet="null" scope="application/android+xml" />
+          <XmlFormattingPolicy inheritsSet="null" scope="application/android+xml" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

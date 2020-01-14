@@ -30,7 +30,7 @@ namespace MotoDetector.CameraAccess
         public CameraController(CameraSurfaceView surfaceView, CameraEventsListener cameraEventListener)
         {
             this.context = surfaceView.Context;
-            this.holder = surfaceView.Holder;
+            //this.holder = surfaceView.Holder;
             this.surfaceView = surfaceView;
             this.cameraEventListener = cameraEventListener;
         }
