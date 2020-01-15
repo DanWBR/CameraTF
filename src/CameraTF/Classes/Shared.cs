@@ -120,7 +120,7 @@ namespace DWSIMSimulator_Android.Code
                 }
                 catch (Exception)
                 {
-                    Toast.MakeText(view.Context, "Error: invalid value for " + text + ".", ToastLength.Short);
+                    Toast.MakeText(view.Context, "Error: invalid value for " + text + ".", ToastLength.Short).Show();
                 }
             }
             else { cbConnection.SetSelection(adapter1.Count); }

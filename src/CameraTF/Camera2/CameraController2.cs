@@ -125,7 +125,7 @@ namespace MotoDetector
             {
                 MainActivity.context.RunOnUiThread(() =>
                 {
-                    Toast.MakeText(MainActivity.context, text, ToastLength.Long);
+                    Toast.MakeText(MainActivity.context, text, ToastLength.Long).Show();
                 });
             }
         }

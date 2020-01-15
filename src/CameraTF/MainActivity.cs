@@ -266,6 +266,11 @@ namespace MotoDetector
                 var range1 = (Android.Util.Range)characteristics.Get(CameraCharacteristics.ControlAeCompensationRange);
                 int minExposure = (int)range1.Lower;
                 int maxExposure = (int)range1.Upper;
+                if (minExposure == 0 && maxExposure == 0)
+                {
+                    Toast.MakeText(this, "A lente selecionada não suporta Compensação da Exposição.", ToastLength.Long).Show();
+                    return;
+                }
                 int adjustedvalue = (int)(value * ((float)maxExposure - (float)minExposure) / 200.0f);
                 var controller = cameraSurface.cameraAnalyzer.cameraController;
                 controller.mPreviewRequestBuilder.Set(CaptureRequest.ControlAeExposureCompensation, adjustedvalue);
@@ -382,24 +387,31 @@ namespace MotoDetector
 
             base.OnResume();
 
-            if (PermissionsHandler.NeedsPermissionRequest(this)) await PermissionsHandler.RequestPermissionsAsync(this);
-
-            var controller = cameraSurface.cameraAnalyzer.cameraController;
-
-            controller.StartBackgroundThread();
-
-            // When the screen is turned off and turned back on, the SurfaceTexture is already
-            // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
-            // a camera and start preview from here (otherwise, we wait until the surface is ready in
-            // the SurfaceTextureListener).
-            if (controller.mTextureView.IsAvailable)
+            if (PermissionsHandler.NeedsPermissionRequest(this))
             {
-                controller.OpenCamera(controller.mTextureView.Width, controller.mTextureView.Height);
+                var x = await PermissionsHandler.RequestPermissionsAsync(this);
+                if (x)
+                {
+                    var controller = cameraSurface.cameraAnalyzer.cameraController;
+
+                    controller.StartBackgroundThread();
+
+                    // When the screen is turned off and turned back on, the SurfaceTexture is already
+                    // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
+                    // a camera and start preview from here (otherwise, we wait until the surface is ready in
+                    // the SurfaceTextureListener).
+                    if (controller.mTextureView.IsAvailable)
+                    {
+                        controller.OpenCamera(controller.mTextureView.Width, controller.mTextureView.Height);
+                    }
+                    else
+                    {
+                        controller.mTextureView.SurfaceTextureListener = controller.mSurfaceTextureListener;
+                    }
+                }
             }
-            else
-            {
-                controller.mTextureView.SurfaceTextureListener = controller.mSurfaceTextureListener;
-            }
+
+
 
         }
 

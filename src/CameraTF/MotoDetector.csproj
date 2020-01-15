@@ -46,6 +46,7 @@
     <AndroidSigningStorePass>pkcuqw</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>daniel</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>pkcuqw</AndroidSigningKeyPass>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
