@@ -123,27 +123,10 @@ namespace MotoDetector
         {
             if (MainActivity.context != null)
             {
-                using (var showToastRunnable = new ShowToastRunnable(MainActivity.context.ApplicationContext, text))
+                MainActivity.context.RunOnUiThread(() =>
                 {
-                    MainActivity.context.RunOnUiThread(showToastRunnable);
-                }
-            }
-        }
-
-        private class ShowToastRunnable : Java.Lang.Object, IRunnable
-        {
-            private string text;
-            private Context context;
-
-            public ShowToastRunnable(Context context, string text)
-            {
-                this.context = context;
-                this.text = text;
-            }
-
-            public void Run()
-            {
-                Toast.MakeText(context, text, ToastLength.Short).Show();
+                    Toast.MakeText(MainActivity.context, text, ToastLength.Long);
+                });
             }
         }
 

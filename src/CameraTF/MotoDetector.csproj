@@ -41,6 +41,11 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>False</ConsolePause>
     <AndroidUseAapt2>false</AndroidUseAapt2>
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningKeyStore>/Users/Daniel/OneDrive/Apps/daniel.keystore</AndroidSigningKeyStore>
+    <AndroidSigningStorePass>pkcuqw</AndroidSigningStorePass>
+    <AndroidSigningKeyAlias>daniel</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>pkcuqw</AndroidSigningKeyPass>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -268,10 +273,6 @@
       <Generator>MSBuild:UpdateGeneratedFiles</Generator>
     </AndroidResource>
     <AndroidResource Include="Resources\values\Strings.xml">
-      <SubType></SubType>
-      <Generator></Generator>
-    </AndroidResource>
-    <AndroidResource Include="Resources\values\file_paths.xml">
       <SubType></SubType>
       <Generator></Generator>
     </AndroidResource>

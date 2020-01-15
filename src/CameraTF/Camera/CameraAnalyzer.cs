@@ -8,6 +8,7 @@ using Android.Views;
 using ApxLabs.FastAndroidCamera;
 using MotoDetector.Helpers;
 using SkiaSharp;
+using Microsoft.AppCenter.Crashes;
 
 namespace MotoDetector.CameraAccess
 {
@@ -160,7 +161,7 @@ namespace MotoDetector.CameraAccess
 
             if (canAnalyze)
             {
-                _ = Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(() =>
                 {
 
                     canAnalyze = false;
@@ -194,14 +195,26 @@ namespace MotoDetector.CameraAccess
 
                     MainActivity.MotoModelStats.InterpreterElapsedMs = stopwatch.ElapsedMilliseconds;
 
+                    //canAnalyze = true;
+
+                    //MainActivity.context.RunOnUiThread(() =>
+                    //{
+                    //    MainActivity.ReloadCanvas();
+                    //});
+
+                }).ContinueWith((t) =>
+                {
+
+                    if (t.Exception != null) Crashes.TrackError(t.Exception);
+
                     canAnalyze = true;
 
                     MainActivity.context.RunOnUiThread(() =>
                     {
                         MainActivity.ReloadCanvas();
                     });
-
                 });
+
             }
 
         }
