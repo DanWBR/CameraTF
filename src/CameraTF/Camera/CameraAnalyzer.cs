@@ -235,13 +235,6 @@ namespace MotoDetector.CameraAccess
 
             switch (MainActivity.SavedDataStore.SelectedDetector)
             {
-                case Classes.SaveData.DetectorType.LicensePlates:
-                    using (var modelData = Application.Context.Assets.Open(ModelPlate))
-                    {
-                        tfService_Plate = new TensorflowLiteService { ModelType = 0 };
-                        tfService_Plate.Initialize(modelData, useNumThreads: true);
-                    }
-                    break;
                 case Classes.SaveData.DetectorType.MotorcycleModels:
                     using (var modelData = Application.Context.Assets.Open(ModelMotoModel))
                     {
@@ -250,11 +243,6 @@ namespace MotoDetector.CameraAccess
                     }
                     break;
             }
-            //using (var modelData = Application.Context.Assets.Open(ModelMoto))
-            //{
-            //    tfService_Moto = new TensorflowLiteService { ModelType = 1 };
-            //    tfService_Moto.Initialize(modelData, useNumThreads: true);
-            //}
         }
     }
 }

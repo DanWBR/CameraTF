@@ -410,6 +410,25 @@ namespace MotoDetector
                     }
                 }
             }
+            else
+            {
+                var controller = cameraSurface.cameraAnalyzer.cameraController;
+
+                controller.StartBackgroundThread();
+
+                // When the screen is turned off and turned back on, the SurfaceTexture is already
+                // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
+                // a camera and start preview from here (otherwise, we wait until the surface is ready in
+                // the SurfaceTextureListener).
+                if (controller.mTextureView.IsAvailable)
+                {
+                    controller.OpenCamera(controller.mTextureView.Width, controller.mTextureView.Height);
+                }
+                else
+                {
+                    controller.mTextureView.SurfaceTextureListener = controller.mSurfaceTextureListener;
+                }
+            }
 
 
 
@@ -634,7 +653,7 @@ namespace MotoDetector
             s.CreateAndAddDescriptionRow2(view, lID, "Selecione o Detector desejado conforme sua necessidade. Você também pode " +
                 "habilitar ou desabilitar a reprodução de som e vibração ao encontrar um objeto válido.");
 
-            var options = new[] { "Modelos de Motocicletas", "Placas de Veículos" };
+            var options = new[] { "Modelos de Motocicletas", "Objetos em Geral" };
 
             s.CreateAndAddSpinnerRow(view, lID, "Detector", options, (int)SavedDataStore.SelectedDetector, (o, e, re) =>
             {
@@ -644,7 +663,7 @@ namespace MotoDetector
                         SavedDataStore.SelectedDetector = SaveData.DetectorType.MotorcycleModels;
                         break;
                     case 1:
-                        SavedDataStore.SelectedDetector = SaveData.DetectorType.LicensePlates;
+                        SavedDataStore.SelectedDetector = SaveData.DetectorType.Objects;
                         break;
                 }
             });
@@ -683,46 +702,6 @@ namespace MotoDetector
                            break;
                    }
                });
-
-            s.CreateAndAddLabelBoxRow(view, lID, "PLACAS ROUBADAS OU CLONADAS");
-
-            s.CreateAndAddButtonRow(view, lID, "Lista de Placas", (o, e, b) =>
-            {
-
-                var alert2 = new AlertDialog.Builder(this);
-                var view2 = new BlankView(this);
-                alert2.SetView(view2);
-
-                string plates = "";
-
-                foreach (var p in SavedDataStore.PlateNumbers)
-                {
-                    plates += p + System.Environment.NewLine;
-                }
-
-                s.CreateAndAddLabelBoxRow(view2, lID, "Lista Negra de Placas");
-
-                var l = new List<string>();
-
-                s.CreateAndAddFullMultilineTextBoxRow(view2, lID, plates, (o2, e2, mee) =>
-                {
-                    foreach (var line in mee.Text.Split(System.Environment.NewLine))
-                    {
-                        if (line != "") l.Add(line);
-                    }
-                });
-
-                alert2.SetCancelable(false);
-                alert2.SetPositiveButton("OK", (sender, e2) =>
-                {
-                    if (l.Count > 0) SavedDataStore.PlateNumbers = l;
-                });
-                alert2.Create().Show();
-
-            });
-
-            s.CreateAndAddBoldDescriptionRow2(view, lID, "Clique no botão acima para inserir as placas que serão reconhecidas como " +
-                "roubadas ou clonadas quando o Detector de Placas de Veículos estiver selecionado.");
 
             s.CreateAndAddLabelBoxRow(view, lID, "SOBRE");
 

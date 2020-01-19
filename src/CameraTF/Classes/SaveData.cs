@@ -38,13 +38,12 @@ namespace MotoDetector.Classes
         public enum DetectorType
         {
             MotorcycleModels,
-            LicensePlates,
             Objects
         }
 
         public bool DisplayTutorial = true;
 
-        public DetectorType SelectedDetector = DetectorType.LicensePlates;
+        public DetectorType SelectedDetector = DetectorType.MotorcycleModels;
 
         public CaptureResolution SelectedResolution = CaptureResolution.Res1080p;
 
